@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
@@ -28,10 +30,46 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   @override
   void initState() {
     super.initState();
-    _loadTransactions();
+    _checkInternetAndLoad();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+
+  Future<void> _checkInternetAndLoad() async {
+    bool hasInternet = await _checkInternetConnection();
+    print('RESULT @:: $hasInternet');
+    if (!hasInternet) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No internet connection. Connect the internet and try again!')),
+        );
+      }
+      return;
+    }
+
+    await _loadTransactions();
+  }
+
+  Future<bool> _checkInternetConnection() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    }
   }
 
   Future<void> _exportTransactions() async {
+    if (!await _checkInternetConnection()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Internet required to export transactions.')),
+      );
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     final transactionsJson = prefs.getString('transactions');
 
@@ -52,6 +90,12 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _importTransactions() async {
+    if (!await _checkInternetConnection()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Internet required to import transactions.')),
+      );
+      return;
+    }
     final result = await FilePicker.platform.pickFiles(type: FileType.any);
 
     if (result != null && result.files.single.path != null) {
@@ -82,6 +126,12 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _exportToCSV() async {
+    if (!await _checkInternetConnection()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Internet required to export transactions.')),
+      );
+      return;
+    }
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/transactions_export.csv');
 
@@ -106,6 +156,12 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _exportToPDF() async {
+    if (!await _checkInternetConnection()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Internet required to export transactions.')),
+      );
+      return;
+    }
     final pdf = pw.Document();
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/transactions_export.pdf');
@@ -142,6 +198,12 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _exportToExcel() async {
+    if (!await _checkInternetConnection()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Internet required to export transactions.')),
+      );
+      return;
+    }
     var excel = Excel.createExcel();
     Sheet sheetObject = excel['Transactions'];
 
@@ -228,8 +290,8 @@ class _RecentTransactionsState extends State<RecentTransactions> {
                   if (value == 'pdf') _exportToPDF();
                   if (value == 'excel') _exportToExcel();
                 },
-                icon: Icon(Icons.download),
-                itemBuilder: (context) => [
+                icon: const Icon(Icons.download),
+                itemBuilder: (context) => const [
                   PopupMenuItem(value: 'json', child: Text('Export as JSON')),
                   PopupMenuItem(value: 'csv', child: Text('Export as CSV')),
                   PopupMenuItem(value: 'pdf', child: Text('Export as PDF')),
