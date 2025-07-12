@@ -1,7 +1,7 @@
 import '../models/transaction_model.dart';
 
 class Constants{
-  static bool isMobileDevice = false;
+  static bool isMobileDevice = true;
   static final transactionType=['Income', 'Expense'];
   // static final transactionCategory=['Select Category','Salary', 'Food', 'Rent','Glossary', 'Lunch Box', 'Travel','Petrol', 'Cloth', 'Party','Other'];
   static final transactionCategory = <String>[

@@ -214,6 +214,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   // Notify the home screen that transactions have been updated
                   widget.onTransactionsUpdated();
                 });
+                Navigator.of(context).pop();
               },
               child: const Text('Delete'),
             ),

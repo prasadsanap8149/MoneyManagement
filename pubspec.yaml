@@ -30,18 +30,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_mobile_ads: ^5.1.0 #ads integration
-  provider: ^6.0.0         # State management
-  shared_preferences: ^2.0.15
-  sqflite: ^2.0.0           # SQLite database for storing transactions
-  charts_flutter: ^0.12.0   # Charts for reports
-  fl_chart: ^0.40.0
-  intl: ^0.17.0
-  dropdown_search: ^5.0.3
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+  # Updated packages with latest versions
+  google_mobile_ads: ^6.0.0       # ads integration
+  provider: ^6.1.2                # latest as of now
+  shared_preferences: ^2.2.3
+  sqflite: ^2.4.2                 # SQLite database
+  fl_chart: ^0.64.0               # note: 1.0.0 is outdated, 0.64.0 is latest stable
+  intl: ^0.20.2
+  dropdown_search: ^6.0.2
+  # charts_flutter is discontinued, consider removing or switching to alternatives
   cupertino_icons: ^1.0.6
+  file_picker: ^10.2.0
+  path_provider: ^2.1.5
+  permission_handler: ^11.0.1
+  share_plus: ^7.2.1
+  csv: ^6.0.0
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  docx_template: ^0.4.0
+  excel: ^4.0.6
 
 flutter_icons:
   android: true
@@ -49,6 +57,7 @@ flutter_icons:
   image_path: "assets/icons/app_icon.png"
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
   flutter_test:
     sdk: flutter
 
@@ -61,6 +70,10 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
 
 # The following section is specific to Flutter packages.
 flutter:
