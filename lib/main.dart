@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:money_management/views/dashboard.dart';
 import 'package:money_management/views/recent_transactions.dart';
-import 'package:money_management/views/report_screen.dart';
 import 'package:money_management/views/transactions_screen.dart';
 import 'package:money_management/widgets/permission_initializer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,14 +27,14 @@ class MoneyManagementApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PermissionInitializer(
-      child: MaterialApp(
-        title: 'Money Management App',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: const HomeScreen(),
+    return MaterialApp(
+      title: 'Money Management App',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const PermissionInitializer(
+        child: HomeScreen(),
       ),
     );
   }
