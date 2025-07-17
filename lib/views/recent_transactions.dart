@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:money_management/utils/util_services.dart';
 import 'package:money_management/models/transaction_model.dart';
 import 'package:money_management/services/file_operations_service.dart';
+import 'package:money_management/utils/user_experience_helper.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,10 +42,9 @@ class _RecentTransactionsState extends State<RecentTransactions> {
 
     if (!hasInternet) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'No internet connection. Connect the internet and try again!')),
+        UserExperienceHelper.showWarningSnackbar(
+          context,
+          'No internet connection. Please connect to the internet and try again.',
         );
       }
       return;
@@ -64,198 +64,360 @@ class _RecentTransactionsState extends State<RecentTransactions> {
 
   Future<void> _exportTransactions() async {
     if (!await _checkInternetConnection()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Internet required to export transactions.')),
+      UserExperienceHelper.showWarningSnackbar(
+        context,
+        'Internet connection required to export transactions.',
       );
       return;
     }
-    final prefs = await SharedPreferences.getInstance();
-    final transactionsJson = prefs.getString('transactions');
 
-    if (transactionsJson == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("No transactions to export."),
-      ));
-      return;
-    }
-
-    // Use FileOperationsService for export with permission handling
-    await FileOperationsService().exportFile(
+    // Show loading indicator
+    final loadingSnackbar = UserExperienceHelper.showLoadingSnackbar(
       context,
-      content: transactionsJson,
-      filename: 'transactions_export.json',
-      mimeType: 'application/json',
-      feature: 'export transactions',
+      'Preparing export...',
     );
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final transactionsJson = prefs.getString('transactions');
+
+      if (transactionsJson == null) {
+        loadingSnackbar.close();
+        UserExperienceHelper.showWarningSnackbar(
+          context,
+          'No transactions found to export.',
+        );
+        return;
+      }
+
+      // Close loading snackbar
+      loadingSnackbar.close();
+
+      // Use FileOperationsService for export with permission handling
+      final success = await FileOperationsService().exportFile(
+        context,
+        content: transactionsJson,
+        filename: 'transactions_export.json',
+        mimeType: 'application/json',
+        feature: 'export transactions',
+      );
+
+      if (success) {
+        UserExperienceHelper.showSuccessSnackbar(
+          context,
+          'Transactions exported successfully!',
+        );
+      }
+    } catch (e) {
+      loadingSnackbar.close();
+      UserExperienceHelper.showErrorSnackbar(
+        context,
+        'Export failed: ${e.toString()}',
+      );
+    }
   }
 
   Future<void> _importTransactions() async {
     if (!await _checkInternetConnection()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Internet required to import transactions.')),
+      UserExperienceHelper.showWarningSnackbar(
+        context,
+        'Internet connection required to import transactions.',
       );
       return;
     }
     
-    // Use FileOperationsService for import with permission handling
-    final jsonStr = await FileOperationsService().importFile(
+    // Show confirmation dialog
+    final confirmed = await UserExperienceHelper.showConfirmationDialog(
       context,
-      feature: 'import transactions',
+      title: 'Import Transactions',
+      message: 'This will replace your current transactions with imported data. Are you sure?',
+      confirmText: 'Import',
+      cancelText: 'Cancel',
+      confirmColor: Colors.blue,
+      icon: Icons.upload_file,
     );
-    
-    if (jsonStr != null) {
-      try {
-        final decodedList = jsonDecode(jsonStr) as List;
-        final List<TransactionModel> importedTransactions =
-            decodedList.map((item) => TransactionModel.fromJson(item)).toList();
 
-        // Save back to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('transactions', jsonEncode(importedTransactions));
+    if (!confirmed) return;
 
-        // Reload in app
-        await _loadTransactions();
+    // Show loading indicator
+    final loadingSnackbar = UserExperienceHelper.showLoadingSnackbar(
+      context,
+      'Importing transactions...',
+    );
 
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Transactions imported successfully."),
-        ));
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Import failed: ${e.toString()}"),
-        ));
+    try {
+      // Use FileOperationsService for import with permission handling
+      final jsonStr = await FileOperationsService().importFile(
+        context,
+        feature: 'import transactions',
+      );
+      
+      if (jsonStr != null) {
+        try {
+          final decodedList = jsonDecode(jsonStr) as List;
+          final List<TransactionModel> importedTransactions =
+              decodedList.map((item) => TransactionModel.fromJson(item)).toList();
+
+          // Save back to SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('transactions', jsonEncode(importedTransactions));
+
+          // Reload in app
+          await _loadTransactions();
+
+          loadingSnackbar.close();
+          UserExperienceHelper.showSuccessSnackbar(
+            context,
+            'Transactions imported successfully! ${importedTransactions.length} transactions loaded.',
+          );
+        } catch (e) {
+          loadingSnackbar.close();
+          UserExperienceHelper.showErrorSnackbar(
+            context,
+            'Import failed: Invalid file format. Please ensure the file is a valid JSON export.',
+          );
+        }
+      } else {
+        loadingSnackbar.close();
+        UserExperienceHelper.showInfoSnackbar(
+          context,
+          'Import cancelled or no file selected.',
+        );
       }
+    } catch (e) {
+      loadingSnackbar.close();
+      UserExperienceHelper.showErrorSnackbar(
+        context,
+        'Import failed: ${e.toString()}',
+      );
     }
   }
 
   Future<void> _exportToCSV() async {
     if (!await _checkInternetConnection()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Internet required to export transactions.')),
+      UserExperienceHelper.showWarningSnackbar(
+        context,
+        'Internet connection required to export transactions.',
       );
       return;
     }
 
-    List<List<String>> csvData = [
-      // Headers
-      ['ID', 'Amount', 'Type', 'Date', 'Category', 'Custom Category'],
-      // Rows
-      ...transactions.map((txn) => [
-            txn.id ?? '',
-            txn.amount.toString(),
-            txn.type,
-            txn.date.toIso8601String(),
-            txn.category,
-            txn.customCategory ?? '',
-          ]),
-    ];
+    if (transactions.isEmpty) {
+      UserExperienceHelper.showWarningSnackbar(
+        context,
+        'No transactions found to export.',
+      );
+      return;
+    }
 
-    String csv = const ListToCsvConverter().convert(csvData);
-    
-    // Use FileOperationsService for export with permission handling
-    await FileOperationsService().exportFile(
+    // Show loading indicator
+    final loadingSnackbar = UserExperienceHelper.showLoadingSnackbar(
       context,
-      content: csv,
-      filename: 'transactions_export.csv',
-      mimeType: 'text/csv',
-      feature: 'export transactions as CSV',
+      'Generating CSV file...',
     );
+
+    try {
+      List<List<String>> csvData = [
+        // Headers
+        ['ID', 'Amount', 'Type', 'Date', 'Category', 'Custom Category'],
+        // Rows
+        ...transactions.map((txn) => [
+              txn.id ?? '',
+              txn.amount.toString(),
+              txn.type,
+              txn.date.toIso8601String(),
+              txn.category,
+              txn.customCategory ?? '',
+            ]),
+      ];
+
+      String csv = const ListToCsvConverter().convert(csvData);
+      
+      // Close loading snackbar
+      loadingSnackbar.close();
+      
+      // Use FileOperationsService for export with permission handling
+      final success = await FileOperationsService().exportFile(
+        context,
+        content: csv,
+        filename: 'transactions_export.csv',
+        mimeType: 'text/csv',
+        feature: 'export transactions as CSV',
+      );
+
+      if (success) {
+        UserExperienceHelper.showSuccessSnackbar(
+          context,
+          'CSV file exported successfully!',
+        );
+      }
+    } catch (e) {
+      loadingSnackbar.close();
+      UserExperienceHelper.showErrorSnackbar(
+        context,
+        'CSV export failed: ${e.toString()}',
+      );
+    }
   }
 
   Future<void> _exportToPDF() async {
     if (!await _checkInternetConnection()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Internet required to export transactions.')),
+      UserExperienceHelper.showWarningSnackbar(
+        context,
+        'Internet connection required to export transactions.',
       );
       return;
     }
-    final pdf = pw.Document();
 
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Table.fromTextArray(
-            headers: [
-              'ID',
-              'Amount',
-              'Type',
-              'Date',
-              'Category',
-              'Custom Category'
-            ],
-            data: transactions
-                .map((txn) => [
-                      txn.id ?? '',
-                      txn.amount.toString(),
-                      txn.type,
-                      txn.date.toIso8601String(),
-                      txn.category,
-                      txn.customCategory ?? ''
-                    ])
-                .toList(),
-          );
-        },
-      ),
-    );
+    if (transactions.isEmpty) {
+      UserExperienceHelper.showWarningSnackbar(
+        context,
+        'No transactions found to export.',
+      );
+      return;
+    }
 
-    final bytes = await pdf.save();
-    
-    // Use FileOperationsService for export with permission handling
-    await FileOperationsService().exportBinaryFile(
+    // Show loading indicator
+    final loadingSnackbar = UserExperienceHelper.showLoadingSnackbar(
       context,
-      bytes: bytes,
-      filename: 'transactions_export.pdf',
-      mimeType: 'application/pdf',
-      feature: 'export transactions as PDF',
+      'Generating PDF file...',
     );
+
+    try {
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Table.fromTextArray(
+              headers: [
+                'ID',
+                'Amount',
+                'Type',
+                'Date',
+                'Category',
+                'Custom Category'
+              ],
+              data: transactions
+                  .map((txn) => [
+                        txn.id ?? '',
+                        txn.amount.toString(),
+                        txn.type,
+                        txn.date.toIso8601String(),
+                        txn.category,
+                        txn.customCategory ?? ''
+                      ])
+                  .toList(),
+            );
+          },
+        ),
+      );
+
+      final bytes = await pdf.save();
+      
+      // Close loading snackbar
+      loadingSnackbar.close();
+      
+      // Use FileOperationsService for export with permission handling
+      final success = await FileOperationsService().exportBinaryFile(
+        context,
+        bytes: bytes,
+        filename: 'transactions_export.pdf',
+        mimeType: 'application/pdf',
+        feature: 'export transactions as PDF',
+      );
+
+      if (success) {
+        UserExperienceHelper.showSuccessSnackbar(
+          context,
+          'PDF file exported successfully!',
+        );
+      }
+    } catch (e) {
+      loadingSnackbar.close();
+      UserExperienceHelper.showErrorSnackbar(
+        context,
+        'PDF export failed: ${e.toString()}',
+      );
+    }
   }
 
   Future<void> _exportToExcel() async {
     if (!await _checkInternetConnection()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Internet required to export transactions.')),
+      UserExperienceHelper.showWarningSnackbar(
+        context,
+        'Internet connection required to export transactions.',
       );
       return;
     }
-    var excel = Excel.createExcel();
-    Sheet sheetObject = excel['Transactions'];
 
-    // Header row
-    sheetObject.appendRow([
-      TextCellValue('ID'),
-      TextCellValue('Amount'),
-      TextCellValue('Type'),
-      TextCellValue('Date'),
-      TextCellValue('Category'),
-      TextCellValue('Custom Category'),
-    ]);
-
-    // Data rows
-    for (var txn in transactions) {
-      sheetObject.appendRow([
-        TextCellValue(txn.id ?? ''),
-        TextCellValue(txn.amount.toString()),
-        TextCellValue(txn.type),
-        TextCellValue(txn.date.toIso8601String()),
-        TextCellValue(txn.category),
-        TextCellValue(txn.customCategory ?? ''),
-      ]);
+    if (transactions.isEmpty) {
+      UserExperienceHelper.showWarningSnackbar(
+        context,
+        'No transactions found to export.',
+      );
+      return;
     }
 
-    final bytes = excel.save();
-    
-    // Use FileOperationsService for export with permission handling
-    await FileOperationsService().exportBinaryFile(
+    // Show loading indicator
+    final loadingSnackbar = UserExperienceHelper.showLoadingSnackbar(
       context,
-      bytes: bytes!,
-      filename: 'transactions_export.xlsx',
-      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      feature: 'export transactions as Excel',
+      'Generating Excel file...',
     );
+
+    try {
+      var excel = Excel.createExcel();
+      Sheet sheetObject = excel['Transactions'];
+
+      // Header row
+      sheetObject.appendRow([
+        TextCellValue('ID'),
+        TextCellValue('Amount'),
+        TextCellValue('Type'),
+        TextCellValue('Date'),
+        TextCellValue('Category'),
+        TextCellValue('Custom Category'),
+      ]);
+
+      // Data rows
+      for (var txn in transactions) {
+        sheetObject.appendRow([
+          TextCellValue(txn.id ?? ''),
+          TextCellValue(txn.amount.toString()),
+          TextCellValue(txn.type),
+          TextCellValue(txn.date.toIso8601String()),
+          TextCellValue(txn.category),
+          TextCellValue(txn.customCategory ?? ''),
+        ]);
+      }
+
+      final bytes = excel.save();
+      
+      // Close loading snackbar
+      loadingSnackbar.close();
+      
+      // Use FileOperationsService for export with permission handling
+      final success = await FileOperationsService().exportBinaryFile(
+        context,
+        bytes: bytes!,
+        filename: 'transactions_export.xlsx',
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        feature: 'export transactions as Excel',
+      );
+
+      if (success) {
+        UserExperienceHelper.showSuccessSnackbar(
+          context,
+          'Excel file exported successfully!',
+        );
+      }
+    } catch (e) {
+      loadingSnackbar.close();
+      UserExperienceHelper.showErrorSnackbar(
+        context,
+        'Excel export failed: ${e.toString()}',
+      );
+    }
   }
 
   // Load transactions from local storage
