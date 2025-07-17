@@ -2,18 +2,18 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:money_management/helper/util_services.dart';
+import 'package:money_management/utils/util_services.dart';
 import 'package:money_management/models/transaction_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class RecentTransactions extends StatefulWidget {
   const RecentTransactions({
@@ -30,7 +30,7 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   @override
   void initState() {
     super.initState();
-    _checkInternetAndLoad();
+    //_checkInternetAndLoad();
   }
 
   @override
@@ -38,14 +38,16 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     super.dispose();
   }
 
-
   Future<void> _checkInternetAndLoad() async {
     bool hasInternet = await _checkInternetConnection();
-    print('RESULT @:: $hasInternet');
+    debugPrint('RESULT @:: $hasInternet');
+
     if (!hasInternet) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No internet connection. Connect the internet and try again!')),
+          const SnackBar(
+              content: Text(
+                  'No internet connection. Connect the internet and try again!')),
         );
       }
       return;
@@ -66,7 +68,8 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   Future<void> _exportTransactions() async {
     if (!await _checkInternetConnection()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Internet required to export transactions.')),
+        const SnackBar(
+            content: Text('Internet required to export transactions.')),
       );
       return;
     }
@@ -92,7 +95,8 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   Future<void> _importTransactions() async {
     if (!await _checkInternetConnection()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Internet required to import transactions.')),
+        const SnackBar(
+            content: Text('Internet required to import transactions.')),
       );
       return;
     }
@@ -128,7 +132,8 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   Future<void> _exportToCSV() async {
     if (!await _checkInternetConnection()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Internet required to export transactions.')),
+        const SnackBar(
+            content: Text('Internet required to export transactions.')),
       );
       return;
     }
@@ -158,7 +163,8 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   Future<void> _exportToPDF() async {
     if (!await _checkInternetConnection()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Internet required to export transactions.')),
+        const SnackBar(
+            content: Text('Internet required to export transactions.')),
       );
       return;
     }
@@ -200,7 +206,8 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   Future<void> _exportToExcel() async {
     if (!await _checkInternetConnection()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Internet required to export transactions.')),
+        const SnackBar(
+            content: Text('Internet required to export transactions.')),
       );
       return;
     }
@@ -313,7 +320,9 @@ class _RecentTransactionsState extends State<RecentTransactions> {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: _importTransactions,
+                onPressed: () async {
+                  await utilService.requestStoragePermission();
+                  _importTransactions;},
                 icon: const Icon(Icons.upload),
                 label: const Text('Import'),
                 style: ElevatedButton.styleFrom(
@@ -411,6 +420,7 @@ class _RecentTransactionsState extends State<RecentTransactions> {
                           ? Icons.arrow_downward
                           : Icons.arrow_upward;
                       Color iconColor =
+                          txn.type == 'Expense' ? Colors.red : Colors.green;
                           txn.type == 'Expense' ? Colors.red : Colors.green;
 
                       return ListTile(
