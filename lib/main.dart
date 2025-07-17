@@ -5,11 +5,14 @@ import 'package:money_management/views/dashboard.dart';
 import 'package:money_management/views/recent_transactions.dart';
 import 'package:money_management/views/report_screen.dart';
 import 'package:money_management/views/transactions_screen.dart';
+import 'package:money_management/widgets/permission_initializer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helper/constants.dart';
 import 'models/transaction_model.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   // Initialize Google Mobile Ads
   try {
     Constants.isMobileDevice ? await MobileAds.instance.initialize() : null;
@@ -25,13 +28,15 @@ class MoneyManagementApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Money Management App',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return PermissionInitializer(
+      child: MaterialApp(
+        title: 'Money Management App',
+        theme: ThemeData(
+          primarySwatch: Colors.green,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const HomeScreen(),
       ),
-      home: const HomeScreen(),
     );
   }
 }
