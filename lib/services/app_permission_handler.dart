@@ -212,4 +212,33 @@ class AppPermissionHandler {
       },
     );
   }
+
+  /// Get storage permission status
+  Future<PermissionStatus> getStoragePermissionStatus() async {
+    if (!Platform.isAndroid) return PermissionStatus.granted;
+
+    try {
+      if (await _isAndroid13OrHigher()) {
+        // Check media permissions for Android 13+
+        final permissions = [Permission.photos, Permission.videos, Permission.audio];
+        for (var permission in permissions) {
+          final status = await permission.status;
+          if (status.isGranted) return PermissionStatus.granted;
+          if (status.isPermanentlyDenied) return PermissionStatus.permanentlyDenied;
+        }
+        return PermissionStatus.denied;
+      } else {
+        // Check legacy permissions
+        final manageStorage = await Permission.manageExternalStorage.status;
+        if (manageStorage.isGranted) return PermissionStatus.granted;
+        if (manageStorage.isPermanentlyDenied) return PermissionStatus.permanentlyDenied;
+        
+        final storage = await Permission.storage.status;
+        return storage;
+      }
+    } catch (e) {
+      debugPrint('Error getting storage permission status: $e');
+      return PermissionStatus.denied;
+    }
+  }
 }
