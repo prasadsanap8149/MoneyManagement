@@ -4,16 +4,13 @@ import 'dart:io';
 
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:money_management/utils/util_services.dart';
 import 'package:money_management/models/transaction_model.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:money_management/services/file_operations_service.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class RecentTransactions extends StatefulWidget {
   const RecentTransactions({
@@ -83,13 +80,14 @@ class _RecentTransactionsState extends State<RecentTransactions> {
       return;
     }
 
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/transactions_export.json';
-    final file = File(filePath);
-
-    await file.writeAsString(transactionsJson);
-
-    await Share.shareXFiles([XFile(file.path)], text: 'Transaction export');
+    // Use FileOperationsService for export with permission handling
+    await FileOperationsService().exportFile(
+      context,
+      content: transactionsJson,
+      filename: 'transactions_export.json',
+      mimeType: 'application/json',
+      feature: 'export transactions',
+    );
   }
 
   Future<void> _importTransactions() async {
@@ -100,12 +98,14 @@ class _RecentTransactionsState extends State<RecentTransactions> {
       );
       return;
     }
-    final result = await FilePicker.platform.pickFiles(type: FileType.any);
-
-    if (result != null && result.files.single.path != null) {
-      final file = File(result.files.single.path!);
-      final jsonStr = await file.readAsString();
-
+    
+    // Use FileOperationsService for import with permission handling
+    final jsonStr = await FileOperationsService().importFile(
+      context,
+      feature: 'import transactions',
+    );
+    
+    if (jsonStr != null) {
       try {
         final decodedList = jsonDecode(jsonStr) as List;
         final List<TransactionModel> importedTransactions =
@@ -137,8 +137,6 @@ class _RecentTransactionsState extends State<RecentTransactions> {
       );
       return;
     }
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/transactions_export.csv');
 
     List<List<String>> csvData = [
       // Headers
@@ -155,9 +153,15 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     ];
 
     String csv = const ListToCsvConverter().convert(csvData);
-    await file.writeAsString(csv);
-
-    await Share.shareXFiles([XFile(file.path)], text: 'Transaction CSV Export');
+    
+    // Use FileOperationsService for export with permission handling
+    await FileOperationsService().exportFile(
+      context,
+      content: csv,
+      filename: 'transactions_export.csv',
+      mimeType: 'text/csv',
+      feature: 'export transactions as CSV',
+    );
   }
 
   Future<void> _exportToPDF() async {
@@ -169,8 +173,6 @@ class _RecentTransactionsState extends State<RecentTransactions> {
       return;
     }
     final pdf = pw.Document();
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/transactions_export.pdf');
 
     pdf.addPage(
       pw.Page(
@@ -199,8 +201,16 @@ class _RecentTransactionsState extends State<RecentTransactions> {
       ),
     );
 
-    await file.writeAsBytes(await pdf.save());
-    await Share.shareXFiles([XFile(file.path)], text: 'Transaction PDF Export');
+    final bytes = await pdf.save();
+    
+    // Use FileOperationsService for export with permission handling
+    await FileOperationsService().exportBinaryFile(
+      context,
+      bytes: bytes,
+      filename: 'transactions_export.pdf',
+      mimeType: 'application/pdf',
+      feature: 'export transactions as PDF',
+    );
   }
 
   Future<void> _exportToExcel() async {
@@ -215,36 +225,37 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     Sheet sheetObject = excel['Transactions'];
 
     // Header row
-    // sheetObject.appendRow([
-    //   CellValue.value('ID'),
-    //   CellValue.value('Amount'),
-    //   CellValue.value('Type'),
-    //   CellValue.value('Date'),
-    //   CellValue.value('Category'),
-    //   CellValue.value('Custom Category'),
-    // ]);
-    //
-    // // Data rows
-    // for (var txn in transactions) {
-    //   sheetObject.appendRow([
-    //     CellValue.value(txn.id ?? ''),
-    //     CellValue.value(txn.amount.toString()),
-    //     CellValue.value(txn.type),
-    //     CellValue.value(txn.date.toIso8601String()),
-    //     CellValue.value(txn.category),
-    //     CellValue.value(txn.customCategory ?? ''),
-    //   ]);
-    // }
+    sheetObject.appendRow([
+      TextCellValue('ID'),
+      TextCellValue('Amount'),
+      TextCellValue('Type'),
+      TextCellValue('Date'),
+      TextCellValue('Category'),
+      TextCellValue('Custom Category'),
+    ]);
 
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/transactions_export.xlsx';
+    // Data rows
+    for (var txn in transactions) {
+      sheetObject.appendRow([
+        TextCellValue(txn.id ?? ''),
+        TextCellValue(txn.amount.toString()),
+        TextCellValue(txn.type),
+        TextCellValue(txn.date.toIso8601String()),
+        TextCellValue(txn.category),
+        TextCellValue(txn.customCategory ?? ''),
+      ]);
+    }
 
-    File(filePath)
-      ..createSync(recursive: true)
-      ..writeAsBytesSync(excel.save()!);
-
-    await Share.shareXFiles([XFile(filePath)],
-        text: 'Transaction Excel Export');
+    final bytes = excel.save();
+    
+    // Use FileOperationsService for export with permission handling
+    await FileOperationsService().exportBinaryFile(
+      context,
+      bytes: bytes!,
+      filename: 'transactions_export.xlsx',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      feature: 'export transactions as Excel',
+    );
   }
 
   // Load transactions from local storage
@@ -320,9 +331,7 @@ class _RecentTransactionsState extends State<RecentTransactions> {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () async {
-                  await utilService.requestStoragePermission();
-                  _importTransactions;},
+                onPressed: _importTransactions,
                 icon: const Icon(Icons.upload),
                 label: const Text('Import'),
                 style: ElevatedButton.styleFrom(
