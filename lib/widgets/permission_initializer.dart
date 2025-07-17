@@ -25,6 +25,16 @@ class _PermissionInitializerState extends State<PermissionInitializer> {
   
   Future<void> _initializePermissions() async {
     try {
+      // Check if permission is already granted
+      if (await AppPermissionHandler().checkStoragePermission()) {
+        setState(() {
+          _permissionGranted = true;
+          _isInitialized = true;
+        });
+        return;
+      }
+      
+      // Request storage permission
       final granted = await AppPermissionHandler().requestStoragePermission();
       setState(() {
         _permissionGranted = granted;
