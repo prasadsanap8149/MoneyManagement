@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:money_management/helper/constants.dart';
 import 'package:money_management/utils/util_services.dart';
-import 'package:permission_handler_platform_interface/permission_handler_platform_interface.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
-import '../services/permission_service.dart';
 import 'add_edit_transaction_form.dart'; // Add this for currency formatting
 
 class DashboardScreen extends StatefulWidget {
@@ -55,23 +53,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               if (Constants.isMobileDevice) const GetBannerAd(),
               const SizedBox(height: 5),
-              Center(
-                child: ElevatedButton(
-                  child: const Text("Request Camera Permission"),
-                  onPressed: () async {
-                    bool granted =
-                        await PermissionService.checkAndRequestPermission(
-                            Permission.manageExternalStorage  );
-
-                    PermissionService.showPermissionStatusSnackbar(
-                        context,
-                        Permission.storage,
-                        granted
-                            ? PermissionStatus.granted
-                            : PermissionStatus.denied);
-                  },
-                ),
-              ),
               // Total Balance Card
               Card(
                 elevation: 4,
