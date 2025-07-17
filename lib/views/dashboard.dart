@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:money_management/helper/constants.dart';
 import 'package:money_management/utils/util_services.dart';
+import 'package:money_management/services/app_permission_handler.dart';
+import 'package:money_management/utils/user_experience_helper.dart';
+import 'package:money_management/utils/app_settings_helper.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
@@ -44,6 +47,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Dashboard'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => _showPermissionSettingsDialog(context),
+            tooltip: 'Permission Settings',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -210,6 +220,115 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onSave: () {},
         ),
       ),
+    );
+  }
+
+  /// Show permission settings dialog
+  Future<void> _showPermissionSettingsDialog(BuildContext context) async {
+    // Check current permission status
+    final hasPermission = await AppPermissionHandler().checkStoragePermission();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Row(
+            children: [
+              Icon(
+                hasPermission ? Icons.check_circle : Icons.settings,
+                color: hasPermission ? Colors.green : Colors.blue,
+              ),
+              const SizedBox(width: 8),
+              const Expanded(child: Text('Storage Permission')),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: hasPermission
+                      ? Colors.green.shade50
+                      : Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      hasPermission ? Icons.check : Icons.warning,
+                      color: hasPermission ? Colors.green : Colors.orange,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        hasPermission
+                            ? 'Storage permission is granted. You can use all import/export features.'
+                            : 'Storage permission is not granted. Import/export features are disabled.',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Storage permission allows you to:',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              const Text('• Export transactions as JSON, CSV, PDF, Excel'),
+              const Text('• Import transaction data from files'),
+              const Text('• Share transaction reports'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            if (!hasPermission) ...[
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+
+                  // Request permission
+                  final granted =
+                      await AppPermissionHandler().requestStoragePermission();
+
+                  if (granted) {
+                    UserExperienceHelper.showSuccessSnackbar(
+                      context,
+                      'Storage permission granted! You can now use import/export features.',
+                    );
+                  } else {
+                    // Show app settings dialog
+                    await AppSettingsHelper.showOpenSettingsDialog(
+                      context,
+                      title: 'Enable Storage Permission',
+                      message:
+                          'To use import/export features, please enable storage permission in app settings.',
+                      feature: 'import/export',
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Enable Permission'),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }
