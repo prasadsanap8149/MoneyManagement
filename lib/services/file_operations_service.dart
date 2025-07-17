@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:money_management/services/permission_manager.dart';
+import 'package:money_management/utils/user_experience_helper.dart';
 
 class FileOperationsService {
   static final FileOperationsService _instance = FileOperationsService._internal();
@@ -43,25 +44,19 @@ class FileOperationsService {
         subject: filename,
       );
 
-      // Show success message
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$filename exported successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      // Show success message - handled by the calling function
+      // UserExperienceHelper.showSuccessSnackbar(
+      //   context,
+      //   '$filename exported successfully',
+      // );
 
       return true;
     } catch (e) {
       debugPrint('Error exporting file: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to export file: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        UserExperienceHelper.showErrorSnackbar(
+          context,
+          'Failed to export file: ${e.toString()}',
         );
       }
       return false;
@@ -101,25 +96,19 @@ class FileOperationsService {
         subject: filename,
       );
 
-      // Show success message
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$filename exported successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      // Show success message - handled by the calling function
+      // UserExperienceHelper.showSuccessSnackbar(
+      //   context,
+      //   '$filename exported successfully',
+      // );
 
       return true;
     } catch (e) {
       debugPrint('Error exporting binary file: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to export file: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        UserExperienceHelper.showErrorSnackbar(
+          context,
+          'Failed to export file: ${e.toString()}',
         );
       }
       return false;
@@ -159,25 +148,19 @@ class FileOperationsService {
       final file = File(result.files.single.path!);
       final content = await file.readAsString();
 
-      // Show success message
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('File imported successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      // Show success message - handled by the calling function
+      // UserExperienceHelper.showSuccessSnackbar(
+      //   context,
+      //   'File imported successfully',
+      // );
 
       return content;
     } catch (e) {
       debugPrint('Error importing file: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to import file: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        UserExperienceHelper.showErrorSnackbar(
+          context,
+          'Failed to import file: ${e.toString()}',
         );
       }
       return null;
@@ -194,35 +177,10 @@ class FileOperationsService {
     BuildContext context, {
     required String feature,
   }) async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('$feature Unavailable'),
-          content: Text(
-            'Storage permission is required to use $feature. '
-            'Please grant permission to access this feature.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                final result = await PermissionManager().requestStoragePermission(context);
-                await PermissionManager().handlePermissionResult(
-                  context, 
-                  result, 
-                  feature: feature
-                );
-              },
-              child: const Text('Grant Permission'),
-            ),
-          ],
-        );
-      },
+    await UserExperienceHelper.showFeatureUnavailableDialog(
+      context,
+      feature: feature,
+      reason: 'Storage permission is required to use $feature. Please grant permission to access this feature.',
     );
   }
 }
