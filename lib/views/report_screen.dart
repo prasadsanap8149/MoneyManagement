@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:money_management/ad_service/widgets/banner_ad.dart';
-import 'package:money_management/helper/constants.dart';
+import 'package:secure_money_management/ad_service/widgets/banner_ad.dart';
+import 'package:secure_money_management/helper/constants.dart';
 
 import '../models/transaction_model.dart';
 
