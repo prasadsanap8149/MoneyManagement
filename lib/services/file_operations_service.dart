@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:money_management/services/permission_manager.dart';
-import 'package:money_management/utils/user_experience_helper.dart';
+import 'package:secure_money_management/services/permission_manager.dart';
+import 'package:secure_money_management/utils/user_experience_helper.dart';
 
 class FileOperationsService {
   static final FileOperationsService _instance = FileOperationsService._internal();
