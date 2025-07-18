@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:money_management/helper/constants.dart';
-import 'package:money_management/utils/util_services.dart';
-import 'package:money_management/services/app_permission_handler.dart';
-import 'package:money_management/utils/user_experience_helper.dart';
-import 'package:money_management/utils/app_settings_helper.dart';
+import 'package:secure_money_management/helper/constants.dart';
+import 'package:secure_money_management/utils/util_services.dart';
+import 'package:secure_money_management/services/app_permission_handler.dart';
+import 'package:secure_money_management/utils/user_experience_helper.dart';
+import 'package:secure_money_management/utils/app_settings_helper.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
