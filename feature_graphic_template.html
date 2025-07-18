@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureMoney Feature Graphic</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+        
+        .feature-graphic {
+            width: 1024px;
+            height: 500px;
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .left-section {
+            flex: 0 0 40%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            background: #fff;
+            border-radius: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        
+        .rupee-symbol {
+            font-size: 72px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .security-badge {
+            background: rgba(255,255,255,0.9);
+            padding: 15px 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .security-badge h4 {
+            margin: 0 0 5px 0;
+            color: #2E7D32;
+            font-size: 16px;
+        }
+        
+        .security-badge p {
+            margin: 0;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .center-section {
+            flex: 0 0 35%;
+            padding: 40px 20px;
+            color: white;
+        }
+        
+        .main-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            margin: 0 0 30px 0;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features li {
+            margin: 12px 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .features li::before {
+            content: "✓";
+            color: #FFC107;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .right-section {
+            flex: 0 0 25%;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .phone-mockup {
+            width: 180px;
+            height: 360px;
+            background: #fff;
+            border-radius: 30px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .phone-screen {
+            flex: 1;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .app-header {
+            background: #4CAF50;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .balance-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .balance-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2E7D32;
+            margin: 0;
+        }
+        
+        .balance-label {
+            font-size: 12px;
+            color: #666;
+            margin: 0;
+        }
+        
+        .transaction-item {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        
+        .transaction-positive {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .transaction-negative {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
+        .decorative-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        
+        .circle-1 {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            top: -100px;
+            right: -100px;
+        }
+        
+        .circle-2 {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            bottom: -75px;
+            left: -75px;
+        }
+    </style>
+</head>
+<body>
+    <div class="feature-graphic">
+        <!-- Decorative Background Elements -->
+        <div class="decorative-elements">
+            <div class="circle-1"></div>
+            <div class="circle-2"></div>
+        </div>
+        
+        <!-- Left Section: App Icon & Security Badge -->
+        <div class="left-section">
+            <div class="app-icon">
+                <div class="rupee-symbol">₹</div>
+            </div>
+            <div class="security-badge">
+                <h4>🔒 Bank-Grade Security</h4>
+                <p>AES-256 Encryption</p>
+            </div>
+        </div>
+        
+        <!-- Center Section: Title & Features -->
+        <div class="center-section">
+            <h1 class="main-title">SecureMoney</h1>
+            <p class="subtitle">Personal Finance Manager</p>
+            <ul class="features">
+                <li>Bank-Grade Encryption</li>
+                <li>Privacy-First Design</li>
+                <li>Secure Local Storage</li>
+                <li>Complete Offline Access</li>
+            </ul>
+        </div>
+        
+        <!-- Right Section: Phone Mockup -->
+        <div class="right-section">
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="app-header">SecureMoney</div>
+                    <div class="balance-card">
+                        <p class="balance-label">Total Balance</p>
+                        <p class="balance-amount">₹45,350</p>
+                    </div>
+                    <div class="transaction-item">
+                        <span>Salary</span>
+                        <span class="transaction-positive">+₹50,000</span>
+                    </div>
+                    <div class="transaction-item">
+                        <span>Groceries</span>
+                        <span class="transaction-negative">-₹2,450</span>
+                    </div>
+                    <div class="transaction-item">
+                        <span>Transport</span>
+                        <span class="transaction-negative">-₹1,200</span>
+                    </div>
+                    <div class="transaction-item">
+                        <span>Investment</span>
+                        <span class="transaction-negative">-₹15,000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
