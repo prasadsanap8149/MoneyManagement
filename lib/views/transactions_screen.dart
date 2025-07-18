@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:money_management/helper/constants.dart';
+import 'package:secure_money_management/helper/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
