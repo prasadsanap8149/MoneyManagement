@@ -1,33 +1,26 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:secure_money_management/services/encryption_service.dart';
-import 'package:secure_money_management/services/secure_transaction_service.dart';
+import 'package:flutter/services.dart';
 import 'package:secure_money_management/views/dashboard.dart';
 import 'package:secure_money_management/views/recent_transactions.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
-import 'package:secure_money_management/widgets/permission_initializer.dart';
+import 'package:secure_money_management/views/splash_screen.dart';
+import 'package:secure_money_management/services/lazy_initialization_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'helper/constants.dart';
 import 'models/transaction_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize encryption service first
-  try {
-    await EncryptionService().initialize();
-    await SecureTransactionService().initialize();
-  } catch (e) {
-    debugPrint('Failed to initialize encryption: $e');
-  }
-  
-  // Initialize Google Mobile Ads
-  try {
-    Constants.isMobileDevice ? await MobileAds.instance.initialize() : null;
-  } catch (e) {
-    debugPrint('Failed to initialize ads: $e');
-  }
+  // Set system UI overlay style for better visual consistency
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
 
   runApp(const MoneyManagementApp());
 }
@@ -47,10 +40,10 @@ class MoneyManagementApp extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 2,
         ),
+        // Improve performance with caching
+        useMaterial3: true,
       ),
-      home: const PermissionInitializer(
-        child: HomeScreen(),
-      ),
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -73,6 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadTransactions(); // Load saved transactions
     _calculateBalance();
+    
+    // Initialize non-critical services lazily after UI is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LazyInitializationService.instance.initializeLazily();
+    });
   }
 
   @override
