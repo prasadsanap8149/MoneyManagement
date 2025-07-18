@@ -508,165 +508,241 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     // Sort filtered transactions by date (descending)
     filteredTransactions.sort((a, b) => b.date.compareTo(a.date));
 
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'json') _exportTransactions();
-                  if (value == 'csv') _exportToCSV();
-                  if (value == 'pdf') _exportToPDF();
-                  if (value == 'excel') _exportToExcel();
-                },
-                icon: const Icon(Icons.download),
-                itemBuilder: (context) => const [
-                  PopupMenuItem(value: 'json', child: Text('Export as JSON')),
-                  PopupMenuItem(value: 'csv', child: Text('Export as CSV')),
-                  PopupMenuItem(value: 'pdf', child: Text('Export as PDF')),
-                  PopupMenuItem(value: 'excel', child: Text('Export as Excel')),
-                ],
-              ),
-              ElevatedButton.icon(
-                onPressed: _exportTransactions,
-                icon: const Icon(Icons.download),
-                label: const Text('Export'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  disabledBackgroundColor: Colors.grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Recent Transactions',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        actions: [
+          // Import button in app bar
+          IconButton(
+            onPressed: _importTransactions,
+            icon: const Icon(Icons.upload),
+            tooltip: 'Import Transactions',
+          ),
+          // Quick export button in app bar
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'json') _exportTransactions();
+              if (value == 'csv') _exportToCSV();
+              if (value == 'pdf') _exportToPDF();
+              if (value == 'excel') _exportToExcel();
+            },
+            icon: const Icon(Icons.download),
+            tooltip: 'Export Options',
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'json',
+                child: Row(
+                  children: [
+                    Icon(Icons.code, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text('Export as JSON'),
+                  ],
                 ),
               ),
-              ElevatedButton.icon(
-                onPressed: _importTransactions,
-                icon: const Icon(Icons.upload),
-                label: const Text('Import'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  disabledBackgroundColor: Colors.grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+              PopupMenuItem(
+                value: 'csv',
+                child: Row(
+                  children: [
+                    Icon(Icons.table_chart, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text('Export as CSV'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'pdf',
+                child: Row(
+                  children: [
+                    Icon(Icons.picture_as_pdf, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Export as PDF'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'excel',
+                child: Row(
+                  children: [
+                    Icon(Icons.grid_on, color: Colors.orange),
+                    SizedBox(width: 8),
+                    Text('Export as Excel'),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 15),
-
-          // Dropdown to select the month
-          DropdownButtonFormField<String>(
-            value: _selectedMonth,
-            decoration: InputDecoration(
-              labelText: 'Select Month',
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.grey, width: 1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.teal, width: 2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-            ),
-            items: ['All', ...transactionsByMonth.keys].map((String month) {
-              return DropdownMenuItem<String>(
-                value: month,
-                child: Text(month),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                _selectedMonth = value!;
-              });
-            },
-          ),
-
-          // Display totals (income, expense, and difference) for selected month
-          _selectedMonth != 'All'
-              ? Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildStatCard(
-                          title: 'Income',
-                          amount: monthlyTotals[_selectedMonth]?['income'] ?? 0,
-                          color: Colors.green.shade200,
-                          textColor: Colors.green.shade900,
-                        ),
-                        const SizedBox(width: 10), // Space between cards
-                        _buildStatCard(
-                          title: 'Expenses',
-                          amount:
-                              monthlyTotals[_selectedMonth]?['expenses'] ?? 0,
-                          color: Colors.red.shade300,
-                          textColor: Colors.red.shade900,
-                        ),
-                        const SizedBox(width: 10),
-                        _buildStatCard(
-                          title: 'Difference',
-                          amount: (monthlyTotals[_selectedMonth]?['income'] ??
-                                  0) -
-                              (monthlyTotals[_selectedMonth]?['expenses'] ?? 0),
-                          color: Colors.blue.shade300,
-                          textColor: Colors.blue.shade900,
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : const SizedBox(),
-
-          Expanded(
-            child: filteredTransactions.isEmpty
-                ? const Center(child: Text('No transactions found.'))
-                : ListView.builder(
-                    itemCount: filteredTransactions.length,
-                    itemBuilder: (context, index) {
-                      final txn = filteredTransactions[index];
-
-                      // Determine the icon and color based on transaction type
-                      IconData iconData = txn.type == 'Expense'
-                          ? Icons.arrow_downward
-                          : Icons.arrow_upward;
-                      Color iconColor =
-                          txn.type == 'Expense' ? Colors.red : Colors.green;
-                          txn.type == 'Expense' ? Colors.red : Colors.green;
-
-                      return ListTile(
-                        leading: Icon(iconData, color: iconColor),
-                        title: Text(
-                            txn.category != 'Other'
-                                ? txn.category
-                                : txn.customCategory!,
-                            style: const TextStyle(fontSize: 12)),
-                        subtitle: Text(
-                            utilService.indianRupeeFormat.format(txn.amount),
-                            style: const TextStyle(fontSize: 14)),
-                        trailing: Text(
-                          txn.date.toLocal().toString().split(' ')[0],
-                          style:
-                              const TextStyle(color: Colors.grey, fontSize: 12),
-                        ),
-                      );
-                    },
-                  ),
-          ),
         ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'json') _exportTransactions();
+                    if (value == 'csv') _exportToCSV();
+                    if (value == 'pdf') _exportToPDF();
+                    if (value == 'excel') _exportToExcel();
+                  },
+                  icon: const Icon(Icons.download),
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(value: 'json', child: Text('Export as JSON')),
+                    PopupMenuItem(value: 'csv', child: Text('Export as CSV')),
+                    PopupMenuItem(value: 'pdf', child: Text('Export as PDF')),
+                    PopupMenuItem(value: 'excel', child: Text('Export as Excel')),
+                  ],
+                ),
+                ElevatedButton.icon(
+                  onPressed: _exportTransactions,
+                  icon: const Icon(Icons.download),
+                  label: const Text('Export'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    disabledBackgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _importTransactions,
+                  icon: const Icon(Icons.upload),
+                  label: const Text('Import'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orangeAccent,
+                    disabledBackgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+
+            // Dropdown to select the month
+            DropdownButtonFormField<String>(
+              value: _selectedMonth,
+              decoration: InputDecoration(
+                labelText: 'Select Month',
+                enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.grey, width: 1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.teal, width: 2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              ),
+              items: ['All', ...transactionsByMonth.keys].map((String month) {
+                return DropdownMenuItem<String>(
+                  value: month,
+                  child: Text(month),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedMonth = value!;
+                });
+              },
+            ),
+
+            // Display totals (income, expense, and difference) for selected month
+            _selectedMonth != 'All'
+                ? Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildStatCard(
+                            title: 'Income',
+                            amount: monthlyTotals[_selectedMonth]?['income'] ?? 0,
+                            color: Colors.green.shade200,
+                            textColor: Colors.green.shade900,
+                          ),
+                          const SizedBox(width: 10), // Space between cards
+                          _buildStatCard(
+                            title: 'Expenses',
+                            amount:
+                                monthlyTotals[_selectedMonth]?['expenses'] ?? 0,
+                            color: Colors.red.shade300,
+                            textColor: Colors.red.shade900,
+                          ),
+                          const SizedBox(width: 10),
+                          _buildStatCard(
+                            title: 'Difference',
+                            amount: (monthlyTotals[_selectedMonth]?['income'] ??
+                                    0) -
+                                (monthlyTotals[_selectedMonth]?['expenses'] ?? 0),
+                            color: Colors.blue.shade300,
+                            textColor: Colors.blue.shade900,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : const SizedBox(),
+
+            Expanded(
+              child: filteredTransactions.isEmpty
+                  ? const Center(child: Text('No transactions found.'))
+                  : ListView.builder(
+                      itemCount: filteredTransactions.length,
+                      itemBuilder: (context, index) {
+                        final txn = filteredTransactions[index];
+
+                        // Determine the icon and color based on transaction type
+                        IconData iconData = txn.type == 'Expense'
+                            ? Icons.arrow_downward
+                            : Icons.arrow_upward;
+                        Color iconColor =
+                            txn.type == 'Expense' ? Colors.red : Colors.green;
+                            txn.type == 'Expense' ? Colors.red : Colors.green;
+
+                        return ListTile(
+                          leading: Icon(iconData, color: iconColor),
+                          title: Text(
+                              txn.category != 'Other'
+                                  ? txn.category
+                                  : txn.customCategory!,
+                              style: const TextStyle(fontSize: 12)),
+                          subtitle: Text(
+                              utilService.indianRupeeFormat.format(txn.amount),
+                              style: const TextStyle(fontSize: 14)),
+                          trailing: Text(
+                            txn.date.toLocal().toString().split(' ')[0],
+                            style:
+                                const TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
