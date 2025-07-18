@@ -42,3 +42,20 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/google-services.json
+
+# Security & Environment Configuration
+.env.production
+.env.local
+*.keystore
+*.jks
+android/key.properties
+android/keystore/
+secrets/
+*.secrets
+*.env.prod
+
+# AdMob & API Keys
+admob_config.json
+api_keys.json
+google-services.json
+GoogleService-Info.plist
