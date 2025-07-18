@@ -10,6 +10,7 @@ import 'package:secure_money_management/utils/util_services.dart';
 import 'package:secure_money_management/models/transaction_model.dart';
 import 'package:secure_money_management/services/file_operations_service.dart';
 import 'package:secure_money_management/utils/user_experience_helper.dart';
+import 'package:secure_money_management/ad_service/widgets/interstitial_ad.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,10 +29,23 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   void initState() {
     super.initState();
     _checkInternetAndLoad();
+    
+    // Pre-load interstitial ad for import/export functionality
+    _initializeInterstitialAds();
+  }
+
+  /// Initialize and pre-load interstitial ads for better user experience
+  void _initializeInterstitialAds() {
+    // Pre-load interstitial ad in background
+    Future.delayed(const Duration(seconds: 1), () {
+      InterstitialAdWidget.instance.loadAd();
+    });
   }
 
   @override
   void dispose() {
+    // Dispose of interstitial ads to free memory
+    InterstitialAdWidget.instance.dispose();
     super.dispose();
   }
 
@@ -62,6 +76,14 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _exportTransactions() async {
+    // Show interstitial ad before export
+    await InterstitialAdHelper.showAdBeforeAction(
+      actionName: 'Export Transactions JSON',
+      action: () => _performExportTransactions(),
+    );
+  }
+
+  Future<void> _performExportTransactions() async {
     if (!await _checkInternetConnection()) {
       UserExperienceHelper.showWarningSnackbar(
         context,
@@ -117,6 +139,14 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _importTransactions() async {
+    // Show interstitial ad before import
+    await InterstitialAdHelper.showAdBeforeAction(
+      actionName: 'Import Transactions',
+      action: () => _performImportTransactions(),
+    );
+  }
+
+  Future<void> _performImportTransactions() async {
     if (!await _checkInternetConnection()) {
       UserExperienceHelper.showWarningSnackbar(
         context,
@@ -193,6 +223,14 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _exportToCSV() async {
+    // Show interstitial ad before CSV export
+    await InterstitialAdHelper.showAdBeforeAction(
+      actionName: 'Export Transactions CSV',
+      action: () => _performExportToCSV(),
+    );
+  }
+
+  Future<void> _performExportToCSV() async {
     if (!await _checkInternetConnection()) {
       UserExperienceHelper.showWarningSnackbar(
         context,
@@ -260,6 +298,14 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _exportToPDF() async {
+    // Show interstitial ad before PDF export
+    await InterstitialAdHelper.showAdBeforeAction(
+      actionName: 'Export Transactions PDF',
+      action: () => _performExportToPDF(),
+    );
+  }
+
+  Future<void> _performExportToPDF() async {
     if (!await _checkInternetConnection()) {
       UserExperienceHelper.showWarningSnackbar(
         context,
@@ -342,6 +388,14 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   }
 
   Future<void> _exportToExcel() async {
+    // Show interstitial ad before Excel export
+    await InterstitialAdHelper.showAdBeforeAction(
+      actionName: 'Export Transactions Excel',
+      action: () => _performExportToExcel(),
+    );
+  }
+
+  Future<void> _performExportToExcel() async {
     if (!await _checkInternetConnection()) {
       UserExperienceHelper.showWarningSnackbar(
         context,
