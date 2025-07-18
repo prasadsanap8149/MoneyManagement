@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:money_management/services/app_permission_handler.dart';
-import 'package:money_management/utils/user_experience_helper.dart';
-import 'package:money_management/utils/app_settings_helper.dart';
+import 'package:secure_money_management/services/app_permission_handler.dart';
+import 'package:secure_money_management/utils/user_experience_helper.dart';
+import 'package:secure_money_management/utils/app_settings_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 
