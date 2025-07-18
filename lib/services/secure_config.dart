@@ -22,16 +22,50 @@ class SecureConfig {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // Load environment configuration
-    await EnvironmentLoader.instance.loadConfiguration();
+    try {
+      // Load environment configuration with timeout
+      await EnvironmentLoader.instance.loadConfiguration()
+          .timeout(const Duration(seconds: 2));
+
+      if (kDebugMode) {
+        _initializeDebugConfig();
+      } else {
+        _initializeReleaseConfig();
+      }
+
+      _isInitialized = true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ Secure config initialization failed, using defaults: $e');
+      }
+      // Fall back to basic configuration
+      _initializeFallbackConfig();
+      _isInitialized = true;
+    }
+  }
+
+  /// Fallback configuration if initialization fails
+  void _initializeFallbackConfig() {
+    // Use safe test IDs as fallback
+    _adMobAppId = Platform.isAndroid 
+        ? 'ca-app-pub-3940256099942544~3347511713'
+        : 'ca-app-pub-3940256099942544~1458002511';
+
+    _adMobBannerAdUnitId = Platform.isAndroid
+        ? 'ca-app-pub-3940256099942544/9214589741'
+        : 'ca-app-pub-3940256099942544/2435281174';
+
+    _adMobInterstitialAdUnitId = Platform.isAndroid
+        ? 'ca-app-pub-3940256099942544/1033173712'
+        : 'ca-app-pub-3940256099942544/4411468910';
+
+    _adMobRewardedAdUnitId = Platform.isAndroid
+        ? 'ca-app-pub-3940256099942544/5224354917'
+        : 'ca-app-pub-3940256099942544/1712485313';
 
     if (kDebugMode) {
-      _initializeDebugConfig();
-    } else {
-      _initializeReleaseConfig();
+      print('🔧 Using fallback test configuration');
     }
-
-    _isInitialized = true;
   }
 
   /// Debug/Test configuration - uses Google test ad units
