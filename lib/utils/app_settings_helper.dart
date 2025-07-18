@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:money_management/utils/user_experience_helper.dart';
+import 'package:secure_money_management/utils/user_experience_helper.dart';
 
 class AppSettingsHelper {
   static final AppSettingsHelper _instance = AppSettingsHelper._internal();
