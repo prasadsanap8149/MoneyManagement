@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:secure_money_management/views/dashboard.dart';
 import 'package:secure_money_management/views/recent_transactions.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
-import 'package:secure_money_management/views/splash_screen.dart';
+import 'package:secure_money_management/screens/splash_screen.dart';
 import 'package:secure_money_management/services/lazy_initialization_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/transaction_model.dart';
