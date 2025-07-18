@@ -1,5 +1,5 @@
-name: money_management
-description: "A project that manage our expenses and incomes"
+name: secure_money_management
+description: "SecureMoney - A secure personal finance manager that helps you track expenses and income with end-to-end encryption"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -32,7 +32,7 @@ dependencies:
     sdk: flutter
 
   # Updated packages with compatible versions
-  google_mobile_ads: ^3.1.0       # ads integration
+  google_mobile_ads: ^6.0.0       # ads integration
   provider: ^6.1.2                # latest as of now
   shared_preferences: ^2.2.3
   sqflite: ^2.3.3                 # SQLite database - compatible with current Dart SDK
@@ -53,6 +53,9 @@ dependencies:
   permission_handler: ^11.3.0
   fluttertoast: ^8.2.12
   device_info_plus: ^10.1.0
+  # Security and encryption
+  crypto: ^3.0.5
+  encrypt: ^5.0.3
 
 
 flutter_icons:
