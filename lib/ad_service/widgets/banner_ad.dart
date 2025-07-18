@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../service/consent_manager.dart';
+import '../../services/secure_config.dart';
 
 /// An example app that loads a banner ad.
 class GetBannerAd extends StatefulWidget {
@@ -20,19 +19,50 @@ class GetBannerAdState extends State<GetBannerAd> {
   bool _isLoaded = false;
   Orientation? _currentOrientation;
 
-  final String _adUnitId = Platform.isAndroid
-      ? kReleaseMode
-          ? 'ca-app-pub-8068332503400690~1411312338'
-          : 'ca-app-pub-3940256099942544/9214589741' //Android Ad Unit ID
-      : Platform.isIOS
-          ? kReleaseMode
-              ? 'ca-app-pub-8068332503400690~1411312338'
-              : 'ca-app-pub-3940256099942544/9214589741' //IOS Ad Unit ID
-          : 'ca-app-pub-8068332503400690~1411312338';
+  // Secure configuration instance
+  final SecureConfig _config = SecureConfig.instance;
+
+  // Get ad unit ID securely based on build mode and platform
+  String get _adUnitId => _config.adMobBannerAdUnitId;
 
   @override
   void initState() {
     super.initState();
+    
+    // Initialize secure configuration and ads
+    _initializeConfiguration();
+  }
+
+  /// Initialize secure configuration and start ad loading process
+  Future<void> _initializeConfiguration() async {
+    try {
+      // Initialize secure configuration
+      await _config.initialize();
+      
+      // Validate configuration before proceeding
+      if (!_config.validateConfiguration()) {
+        if (kDebugMode) {
+          print('❌ AdMob configuration validation failed');
+        }
+        return;
+      }
+      
+      if (kDebugMode) {
+        print('🔧 AdMob Configuration: ${_config.isUsingTestAds ? "Test Ads" : "Production Ads"}');
+        print('📱 Ad Unit ID: ${_config.adMobBannerAdUnitId}');
+      }
+      
+      // Proceed with consent and ad initialization
+      _startAdInitialization();
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Failed to initialize secure configuration: $e');
+      }
+    }
+  }
+
+  /// Start the ad initialization process with consent management
+  void _startAdInitialization() {
     consentManager.gatherConsent((consentGatheringError) {
       if (consentGatheringError != null) {
         // Consent not obtained in current session.
