@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:secure_money_management/services/encryption_service.dart';
-import 'package:secure_money_management/services/secure_transaction_service.dart';
-import 'package:secure_money_management/services/secure_config.dart';
-import 'package:secure_money_management/widgets/permission_initializer.dart';
+import 'package:secure_money_management/services/lazy_initialization_service.dart';
 import '../main.dart' show HomeScreen;
 
 /// Splash Screen with proper initialization and branding
@@ -56,26 +53,17 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _initializeApp() async {
     try {
-      // Step 1: Initialize encryption (most critical)
-      _updateLoadingText('🔒 Securing your data...');
-      await Future.delayed(const Duration(milliseconds: 300)); // Smooth UI
-      
-      await EncryptionService().initialize();
-      await SecureTransactionService().initialize();
-
-      // Step 2: Initialize secure configuration
+      // Step 1: Basic app initialization
       _updateLoadingText('⚙️ Loading configuration...');
-      await Future.delayed(const Duration(milliseconds: 200));
-      
-      await SecureConfig.instance.initialize();
+      await Future.delayed(const Duration(milliseconds: 400));
 
-      // Step 3: We'll initialize ads later in the app (non-blocking)
+      // Step 2: Setting up features
       _updateLoadingText('📱 Setting up features...');
-      await Future.delayed(const Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 400));
 
-      // Step 4: Ensure minimum splash duration for smooth UX
+      // Step 3: Final preparation
       _updateLoadingText('🚀 Almost ready...');
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 600));
 
       // Wait for animation to complete
       await _animationController.forward();
@@ -104,9 +92,7 @@ class _SplashScreenState extends State<SplashScreen>
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const PermissionInitializer(
-          child: HomeScreen(),
-        ),
+            const HomeScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
             opacity: animation,
@@ -116,6 +102,21 @@ class _SplashScreenState extends State<SplashScreen>
         transitionDuration: const Duration(milliseconds: 500),
       ),
     );
+    
+    // Initialize services in the background after navigation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeServicesInBackground();
+    });
+  }
+  
+  Future<void> _initializeServicesInBackground() async {
+    try {
+      // Initialize services lazily after the home screen is shown
+      await LazyInitializationService.instance.initializeLazily();
+    } catch (e) {
+      debugPrint('Background initialization error: $e');
+      // Don't block the UI for background initialization failures
+    }
   }
 
   void _retryInitialization() {
