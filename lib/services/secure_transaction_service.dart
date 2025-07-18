@@ -77,9 +77,7 @@ class SecureTransactionService {
       final transactions = await loadTransactions();
       
       // Assign ID if not present
-      if (transaction.id == null) {
-        transaction.id = DateTime.now().millisecondsSinceEpoch.toString();
-      }
+      transaction.id ??= DateTime.now().millisecondsSinceEpoch.toString();
       
       transactions.add(transaction);
       await saveTransactions(transactions);

@@ -17,9 +17,8 @@ class RecentTransactions extends StatefulWidget {
   const RecentTransactions({
     super.key,
   });
-
   @override
-  _RecentTransactionsState createState() => _RecentTransactionsState();
+  State<RecentTransactions>  createState() => _RecentTransactionsState();
 }
 
 class _RecentTransactionsState extends State<RecentTransactions> {
@@ -28,7 +27,7 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   @override
   void initState() {
     super.initState();
-    //_checkInternetAndLoad();
+    _checkInternetAndLoad();
   }
 
   @override

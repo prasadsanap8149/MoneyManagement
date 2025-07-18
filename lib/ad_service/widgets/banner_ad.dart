@@ -21,8 +21,14 @@ class GetBannerAdState extends State<GetBannerAd> {
   Orientation? _currentOrientation;
 
   final String _adUnitId = Platform.isAndroid
-      ? kReleaseMode? 'ca-app-pub-8068332503400690~1411312338': 'ca-app-pub-3940256099942544/9214589741' //Android Ad Unit ID
-      : kReleaseMode? '':'ca-app-pub-3940256099942544/9214589741'; //IOS Ad Unit ID
+      ? kReleaseMode
+          ? 'ca-app-pub-8068332503400690~1411312338'
+          : 'ca-app-pub-3940256099942544/9214589741' //Android Ad Unit ID
+      : Platform.isIOS
+          ? kReleaseMode
+              ? 'ca-app-pub-8068332503400690~1411312338'
+              : 'ca-app-pub-3940256099942544/9214589741' //IOS Ad Unit ID
+          : 'ca-app-pub-8068332503400690~1411312338';
 
   @override
   void initState() {

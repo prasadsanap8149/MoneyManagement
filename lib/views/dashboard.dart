@@ -8,7 +8,6 @@ import 'package:secure_money_management/utils/app_settings_helper.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
-import 'add_edit_transaction_form.dart'; // Add this for currency formatting
 
 class DashboardScreen extends StatefulWidget {
   final List<TransactionModel> transactions; // Add a transactions parameter
@@ -206,18 +205,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  // Navigate to add transaction screen
-  void _addTransaction(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddEditTransactionScreen(
-          onSave: () {},
         ),
       ),
     );

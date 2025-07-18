@@ -13,7 +13,7 @@ class AddEditTransactionScreen extends StatefulWidget {
       {super.key, required this.onSave, this.transaction});
 
   @override
-  _AddEditTransactionScreenState createState() =>
+  State<AddEditTransactionScreen> createState() =>
       _AddEditTransactionScreenState();
 }
 
@@ -30,7 +30,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   @override
   void initState() {
     super.initState();
-    print('Transaction received: ${widget.transaction}');
+    debugPrint('Transaction received: ${widget.transaction}');
     if (widget.transaction != null) {
       _amount = widget.transaction!.amount;
       _type = widget.transaction!.type;
