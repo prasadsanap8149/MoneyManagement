@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:money_management/views/dashboard.dart';
-import 'package:money_management/views/recent_transactions.dart';
-import 'package:money_management/views/transactions_screen.dart';
-import 'package:money_management/widgets/permission_initializer.dart';
+import 'package:secure_money_management/services/encryption_service.dart';
+import 'package:secure_money_management/services/secure_transaction_service.dart';
+import 'package:secure_money_management/views/dashboard.dart';
+import 'package:secure_money_management/views/recent_transactions.dart';
+import 'package:secure_money_management/views/transactions_screen.dart';
+import 'package:secure_money_management/widgets/permission_initializer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'helper/constants.dart';
 import 'models/transaction_model.dart';
@@ -12,11 +14,19 @@ import 'models/transaction_model.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Initialize encryption service first
+  try {
+    await EncryptionService().initialize();
+    await SecureTransactionService().initialize();
+  } catch (e) {
+    debugPrint('Failed to initialize encryption: $e');
+  }
+  
   // Initialize Google Mobile Ads
   try {
     Constants.isMobileDevice ? await MobileAds.instance.initialize() : null;
   } catch (e) {
-    debugPrint(e.toString());
+    debugPrint('Failed to initialize ads: $e');
   }
 
   runApp(const MoneyManagementApp());
@@ -28,14 +38,20 @@ class MoneyManagementApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Money Management App',
+      title: 'SecureMoney - Personal Finance Manager',
       theme: ThemeData(
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.white,
+          elevation: 2,
+        ),
       ),
       home: const PermissionInitializer(
         child: HomeScreen(),
       ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -63,7 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Money Manager'),
+        title: const Text('SecureMoney'),
+        centerTitle: true,
       ),
       body: _getSelectedScreen(),
       bottomNavigationBar: BottomNavigationBar(
