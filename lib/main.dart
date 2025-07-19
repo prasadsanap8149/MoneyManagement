@@ -194,7 +194,9 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       case 2:
         // return ReportsScreen(transactions: _transactions);
-        return const RecentTransactions();
+        return RecentTransactions(
+          onTransactionsUpdated: _loadTransactions,
+        );
       default:
         return DashboardScreen(transactions: _transactions, totalBalance: _totalBalance, onTransactionsUpdated: _loadTransactions);
     }
