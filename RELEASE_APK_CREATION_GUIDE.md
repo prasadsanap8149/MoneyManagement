@@ -177,7 +177,7 @@ flutter clean
 flutter pub get
 
 # Generate app icon (if using flutter_launcher_icons)
-flutter pub run flutter_launcher_icons:main
+dart run flutter_launcher_icons
 
 # Build release App Bundle
 flutter build appbundle --release
