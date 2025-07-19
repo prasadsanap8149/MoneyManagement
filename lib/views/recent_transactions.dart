@@ -16,8 +16,11 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RecentTransactions extends StatefulWidget {
+  final VoidCallback? onTransactionsUpdated; // Callback to notify the home screen
+
   const RecentTransactions({
     super.key,
+    this.onTransactionsUpdated,
   });
   @override
   State<RecentTransactions>  createState() => _RecentTransactionsState();
@@ -213,6 +216,11 @@ class _RecentTransactionsState extends State<RecentTransactions> {
 
           // Reload in app
           await _loadTransactions();
+
+          // Notify parent widget that transactions have been updated
+          if (widget.onTransactionsUpdated != null) {
+            widget.onTransactionsUpdated!();
+          }
 
           loadingSnackbar.close();
           
@@ -533,6 +541,11 @@ class _RecentTransactionsState extends State<RecentTransactions> {
         setState(() {
           transactions = legacyTransactions;
         });
+        
+        // Notify parent widget that transactions have been updated
+        if (widget.onTransactionsUpdated != null) {
+          widget.onTransactionsUpdated!();
+        }
         
         debugPrint('Successfully migrated ${legacyTransactions.length} transactions from legacy storage');
       }
