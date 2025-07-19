@@ -46,6 +46,7 @@ app.*.map.json
 # Security & Environment Configuration
 .env.production
 .env.local
+.env.debug
 *.keystore
 *.jks
 android/key.properties

@@ -642,25 +642,10 @@ class _RecentTransactionsState extends State<RecentTransactions> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'json') _exportTransactions();
-                    if (value == 'csv') _exportToCSV();
-                    if (value == 'pdf') _exportToPDF();
-                    if (value == 'excel') _exportToExcel();
-                  },
-                  icon: const Icon(Icons.download),
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'json', child: Text('Export as JSON')),
-                    PopupMenuItem(value: 'csv', child: Text('Export as CSV')),
-                    PopupMenuItem(value: 'pdf', child: Text('Export as PDF')),
-                    PopupMenuItem(value: 'excel', child: Text('Export as Excel')),
-                  ],
-                ),
                 ElevatedButton.icon(
                   onPressed: _exportTransactions,
                   icon: const Icon(Icons.download),
-                  label: const Text('Export'),
+                  label: const Text('Export JSON'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal,
                     disabledBackgroundColor: Colors.grey,
@@ -674,7 +659,7 @@ class _RecentTransactionsState extends State<RecentTransactions> {
                 ElevatedButton.icon(
                   onPressed: _importTransactions,
                   icon: const Icon(Icons.upload),
-                  label: const Text('Import'),
+                  label: const Text('Import JSON'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orangeAccent,
                     disabledBackgroundColor: Colors.grey,
