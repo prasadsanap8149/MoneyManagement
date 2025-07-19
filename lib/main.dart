@@ -1,51 +1,99 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:secure_money_management/views/dashboard.dart';
 import 'package:secure_money_management/views/recent_transactions.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
 import 'package:secure_money_management/screens/splash_screen.dart';
 import 'package:secure_money_management/services/lazy_initialization_service.dart';
 import 'package:secure_money_management/services/secure_transaction_service.dart';
+import 'package:secure_money_management/services/theme_service.dart';
+import 'package:secure_money_management/widgets/theme_settings_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/transaction_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Set system UI overlay style for better visual consistency
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-  );
-
-  runApp(const MoneyManagementApp());
+  // Initialize theme service
+  final themeService = ThemeService();
+  await themeService.initialize();
+  
+  runApp(MoneyManagementApp(themeService: themeService));
 }
 
 class MoneyManagementApp extends StatelessWidget {
-  const MoneyManagementApp({super.key});
+  final ThemeService themeService;
+  
+  const MoneyManagementApp({super.key, required this.themeService});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SecureMoney - Personal Finance Manager',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.white,
-          elevation: 2,
-        ),
-        // Improve performance with caching
-        useMaterial3: true,
+    return ChangeNotifierProvider.value(
+      value: themeService,
+      child: Consumer<ThemeService>(
+        builder: (context, themeService, child) {
+          return MaterialApp(
+            title: 'SecureMoney - Personal Finance Manager',
+            theme: ThemeData(
+              primarySwatch: Colors.green,
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                elevation: 2,
+              ),
+              cardTheme: const CardThemeData(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+              ),
+              useMaterial3: true,
+            ),
+            darkTheme: ThemeData(
+              primarySwatch: Colors.green,
+              brightness: Brightness.dark,
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Color(0xFF1B5E20), // Dark green
+                foregroundColor: Colors.white,
+                elevation: 2,
+              ),
+              cardTheme: const CardThemeData(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                color: Color(0xFF2E2E2E), // Dark card background
+              ),
+              scaffoldBackgroundColor: const Color(0xFF121212),
+              colorScheme: const ColorScheme.dark(
+                primary: Colors.green,
+                secondary: Colors.greenAccent,
+                surface: Color(0xFF1E1E1E),
+                background: Color(0xFF121212),
+                onPrimary: Colors.white,
+                onSecondary: Colors.black,
+                onSurface: Colors.white,
+                onBackground: Colors.white,
+              ),
+              textTheme: const TextTheme(
+                bodyLarge: TextStyle(color: Colors.white),
+                bodyMedium: TextStyle(color: Colors.white70),
+                headlineLarge: TextStyle(color: Colors.white),
+                headlineMedium: TextStyle(color: Colors.white),
+                headlineSmall: TextStyle(color: Colors.white),
+              ),
+              useMaterial3: true,
+            ),
+            themeMode: themeService.themeMode, // Use theme service's current mode
+            home: const SplashScreen(),
+            debugShowCheckedModeBanner: false,
+          );
+        },
       ),
-      home: const SplashScreen(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -104,6 +152,9 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('SecureMoney'),
         centerTitle: true,
+        actions: [
+          const ThemeToggleButton(),
+        ],
       ),
       body: _getSelectedScreen(),
       bottomNavigationBar: BottomNavigationBar(
