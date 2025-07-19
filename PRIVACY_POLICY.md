@@ -1,7 +1,7 @@
 # Privacy Policy for Money Management App
 
-**Effective Date:** December 18, 2024  
-**Last Updated:** December 18, 2024
+**Effective Date:** June 1, 2025  
+**Last Updated:** June 1, 2025
 
 ## 1. Introduction
 
