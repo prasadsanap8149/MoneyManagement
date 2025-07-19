@@ -6,6 +6,7 @@ import 'package:secure_money_management/views/recent_transactions.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
 import 'package:secure_money_management/screens/splash_screen.dart';
 import 'package:secure_money_management/services/lazy_initialization_service.dart';
+import 'package:secure_money_management/services/secure_transaction_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/transaction_model.dart';
 
@@ -60,12 +61,36 @@ class _HomeScreenState extends State<HomeScreen> {
   List<TransactionModel> _transactions = []; // List to hold transactions
   double _totalBalance = 0.0;
   int _selectedIndex = 0; // Index to track the selected tab
+  final SecureTransactionService _secureStorage = SecureTransactionService();
 
   @override
   void initState() {
     super.initState();
-    _loadTransactions(); // Load saved transactions
-    _calculateBalance();
+    _initializeAndLoadTransactions(); // Initialize secure storage and load transactions
+  }
+
+  /// Initialize secure storage and load transactions
+  Future<void> _initializeAndLoadTransactions() async {
+    try {
+      // Initialize the secure transaction service
+      await _secureStorage.initialize();
+      
+      // Attempt to migrate from plain text storage
+      final migrated = await _secureStorage.migrateFromPlainTextStorage();
+      if (migrated) {
+        debugPrint('Successfully migrated transactions to encrypted storage in main.dart');
+      }
+      
+      // Load transactions after initialization/migration
+      await _loadTransactions();
+      _calculateBalance();
+      
+    } catch (e) {
+      debugPrint('Error initializing secure storage in main.dart: $e');
+      // Fallback to loading without migration
+      await _loadTransactions();
+      _calculateBalance();
+    }
     
     // Initialize non-critical services lazily after UI is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -130,17 +155,47 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Load transactions from local storage
+  // Load transactions from secure storage
   Future<void> _loadTransactions() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? savedTransactions = prefs.getString('transactions');
-    if (savedTransactions != null) {
-      List<dynamic> decodedTransactions = jsonDecode(savedTransactions);
+    try {
+      final loadedTransactions = await _secureStorage.loadTransactions();
       setState(() {
-        _transactions = decodedTransactions
+        _transactions = loadedTransactions;
+      });
+      _calculateBalance(); // Recalculate balance after loading transactions
+    } catch (e) {
+      debugPrint('Error loading transactions in main.dart: $e');
+      // Try legacy migration as fallback
+      await _tryLegacyMigration();
+    }
+  }
+
+  /// Try to load from legacy storage and migrate to secure storage
+  Future<void> _tryLegacyMigration() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? savedTransactions = prefs.getString('transactions');
+      if (savedTransactions != null) {
+        List<dynamic> decodedTransactions = jsonDecode(savedTransactions);
+        final legacyTransactions = decodedTransactions
             .map((json) => TransactionModel.fromJson(json))
             .toList();
-        _calculateBalance(); // Recalculate balance after loading
+        
+        // Migrate to secure storage
+        await _secureStorage.saveTransactions(legacyTransactions);
+        await prefs.remove('transactions'); // Remove legacy storage
+        
+        setState(() {
+          _transactions = legacyTransactions;
+        });
+        
+        _calculateBalance(); // Recalculate balance after migration
+        debugPrint('Successfully migrated ${legacyTransactions.length} transactions from legacy storage in main.dart');
+      }
+    } catch (e) {
+      debugPrint('Error during legacy migration in main.dart: $e');
+      setState(() {
+        _transactions = [];
       });
     }
   }
@@ -148,15 +203,24 @@ class _HomeScreenState extends State<HomeScreen> {
   // Calculate total balance based on transactions
   void _calculateBalance() {
     double balance = 0.0;
+    double totalIncome = 0.0;
+    double totalExpenses = 0.0;
+    
     for (var txn in _transactions) {
       if (txn.type == 'Income') {
         balance += txn.amount;
+        totalIncome += txn.amount;
       } else if (txn.type == 'Expense') {
         balance -= txn.amount;
+        totalExpenses += txn.amount;
       }
     }
+    
     setState(() {
       _totalBalance = balance; // Update the total balance
     });
+    
+    // Debug output (can be removed in production)
+    debugPrint('Main - Loaded ${_transactions.length} transactions, Income: $totalIncome, Expenses: $totalExpenses, Balance: $balance');
   }
 }
