@@ -1,11 +1,11 @@
-# Privacy Policy for Money Management App
+# Privacy Policy for Secure Money - Personal Finance Manager App
 
-**Effective Date:** December 18, 2024  
-**Last Updated:** December 18, 2024
+**Effective Date:** June 1, 2025  
+**Last Updated:** June 1, 2025
 
 ## 1. Introduction
 
-This privacy policy describes how Money Management App ("we," "our," or "us") collects, uses, and protects your information when you use our mobile application.
+This privacy policy describes how Secure Money - Personal Finance Manager App ("we," "our," or "us") collects, uses, and protects your information when you use our mobile application.
 
 ## 2. Information We Collect
 
@@ -37,6 +37,11 @@ This privacy policy describes how Money Management App ("we," "our," or "us") co
 - Analyze app usage to improve features and user experience
 - Identify and fix bugs and performance issues
 
+### 3.4 Theme Customization
+- Store user theme preferences (light, dark, or system)
+- Provide consistent visual experience across app sessions
+- Support system-wide theme changes and automatic adaptation
+
 ## 4. Data Storage and Security
 
 ### 4.1 Local Storage
@@ -48,6 +53,18 @@ This privacy policy describes how Money Management App ("we," "our," or "us") co
 - Data encryption at rest and in transit
 - Secure data export/import processes
 - Regular security updates and patches
+
+### 4.3 Modern File Access (Android 11+)
+- Uses Storage Access Framework (SAF) for secure file operations
+- No storage permissions required on Android 11 and higher
+- File access through system-provided file picker only
+- Full compliance with Android scoped storage requirements
+
+### 4.4 Smart Import System
+- JSON-only transaction imports with comprehensive validation
+- Append-mode imports that preserve existing data
+- Automatic duplicate detection and prevention
+- Real-time feedback on import operations and results
 
 ## 5. Data Sharing and Disclosure
 
@@ -111,7 +128,7 @@ This privacy policy describes how Money Management App ("we," "our," or "us") co
 
 If you have questions about this privacy policy or our privacy practices, please contact us at:
 
-**Email:** support@moneymanagementapp.com  
+**Email:** prasadsanap8149@gmail.com  
 **Subject:** Privacy Policy Inquiry
 
 ## 13. Permissions Explanation

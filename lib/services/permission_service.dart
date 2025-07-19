@@ -55,20 +55,21 @@ class PermissionService {
 
   /// Request storage permission for Android 13+
   static Future<bool> _requestAndroid13StoragePermission() async {
-    // For Android 13+, request specific media permissions
-    final permissions = [
-      Permission.photos,
-      Permission.videos,
-      Permission.audio,
-    ];
-
-    Map<Permission, PermissionStatus> statuses = {};
-    for (var permission in permissions) {
-      statuses[permission] = await permission.request();
+    // For Android 13+, we'll primarily use Storage Access Framework (SAF)
+    // for document access, which doesn't require specific media permissions
+    // This method will mainly handle the storage permission for backward compatibility
+    try {
+      // Check if we can access external storage for documents
+      final storageStatus = await Permission.storage.status;
+      if (storageStatus.isDenied) {
+        final result = await Permission.storage.request();
+        return result.isGranted;
+      }
+      return storageStatus.isGranted;
+    } catch (e) {
+      debugPrint('Error requesting Android 13+ storage permission: $e');
+      return false;
     }
-
-    // Check if at least one permission is granted
-    return statuses.values.any((status) => status.isGranted);
   }
 
   /// Request storage permission for Android 12 and below
@@ -130,19 +131,10 @@ class PermissionService {
   static Future<bool> isStoragePermissionGranted() async {
     if (Platform.isAndroid) {
       if (await _isAndroid13OrHigher()) {
-        // Check if any of the media permissions are granted
-        final permissions = [
-          Permission.photos,
-          Permission.videos,
-          Permission.audio,
-        ];
-        
-        for (var permission in permissions) {
-          if (await permission.status.isGranted) {
-            return true;
-          }
-        }
-        return false;
+        // For Android 13+, check basic storage permission
+        // Document access will be handled via Storage Access Framework (SAF)
+        final storage = await Permission.storage.status;
+        return storage.isGranted;
       } else {
         // Check legacy permissions
         final manageStorage = await Permission.manageExternalStorage.status;

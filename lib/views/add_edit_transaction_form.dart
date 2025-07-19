@@ -200,7 +200,8 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                     },
                     onSaved: (value) => _customCategory = value!,
                   ),
-                // const SizedBox(height: 16),
+                if (_category == 'Other')
+                  const SizedBox(height: 16),
                 GestureDetector(
                   onTap: _presentDatePicker,
                   child: Container(

@@ -208,6 +208,39 @@ adb shell screencap -p /sdcard/screenshot.png
 adb pull /sdcard/screenshot.png ./screenshots/
 ```
 
+#### **SAF Implementation Verification**
+```bash
+# Verify manifest permissions (should only show legacy permissions for Android 10-)
+grep -A 5 -B 5 "uses-permission" android/app/src/main/AndroidManifest.xml
+
+# Check file_picker dependency
+grep "file_picker" pubspec.yaml
+
+# Verify theme service implementation
+grep -r "ThemeService" lib/
+grep -r "ThemeToggleButton" lib/
+
+# Check new import functionality
+grep -r "importTransactionJsonFile" lib/
+grep -r "importAndAppendTransactions" lib/
+```
+
+#### **Feature Testing**
+```bash
+# Test dark theme persistence
+adb shell pm clear com.prasadSanap.secure_money_management
+# Open app, set dark theme, close app, reopen - should remember theme
+
+# Test import append functionality  
+# 1. Add some transactions manually
+# 2. Export to JSON
+# 3. Import the same JSON file
+# 4. Should show "0 new transactions" (duplicates skipped)
+
+# Test file picker restrictions
+# Try to import non-JSON file - should show error message
+```
+
 ---
 
 ### ✅ **SUBMISSION CHECKLIST**
@@ -299,3 +332,53 @@ flutter clean && rm -rf build/ && flutter pub get && flutter build appbundle --r
 - **Troubleshooting**: Check individual guide files for detailed solutions
 
 **Your complete documentation package is ready! 🚀📱💰**
+
+---
+
+### 🆕 **NEW FEATURES TESTING COMMANDS**
+
+#### **SAF (Storage Access Framework) Testing**
+```bash
+# Test on Android 11+ device (no permissions should be requested)
+adb shell pm list permissions com.prasadSanap.secure_money_management | grep -i storage
+# Should show no storage permissions granted on Android 11+
+
+# Test file import functionality
+adb shell am start -W -a android.intent.action.VIEW -t "application/json" -d "file:///sdcard/test_transactions.json"
+# Should open file picker for JSON files only
+
+# Test theme switching
+adb shell am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n com.prasadSanap.secure_money_management/.MainActivity
+# Navigate to settings and test theme toggle
+```
+
+#### **Import/Export Testing**
+```bash
+# Create test JSON file for import testing
+cat > test_transactions.json << EOF
+[
+  {
+    "id": "test_123",
+    "title": "Test Transaction",
+    "description": "Testing import functionality",
+    "amount": 100.0,
+    "type": "Income",
+    "category": "Test",
+    "date": "2025-07-20T10:00:00.000Z"
+  }
+]
+EOF
+
+# Push test file to device
+adb push test_transactions.json /sdcard/
+# Test import through app - should show "1 new transaction imported"
+```
+
+#### **Android Version Compatibility**
+```bash
+# Check Android version on connected device
+adb shell getprop ro.build.version.sdk
+
+# Android 11+ (API 30+) - Should use SAF
+# Android 10- (API 21-29) - Should request storage permissions
+```
