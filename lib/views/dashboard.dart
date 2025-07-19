@@ -42,6 +42,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final totalExpenses = utilService.calculateBalance(
         widget.transactions, Constants.transactionType[1]);
 
+    // Debug prints (can be removed in production)
+    debugPrint('Dashboard - Transactions: ${widget.transactions.length}, Income: $totalIncome, Expenses: $totalExpenses');
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
@@ -103,7 +106,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const Text('Total Income'),
                             const SizedBox(height: 8),
                             Text(
-                              indianRupeeFormat.format(totalIncome),
+                              totalIncome > 0 
+                                ? indianRupeeFormat.format(totalIncome)
+                                : '₹0.00',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
