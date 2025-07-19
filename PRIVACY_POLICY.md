@@ -111,7 +111,7 @@ This privacy policy describes how Money Management App ("we," "our," or "us") co
 
 If you have questions about this privacy policy or our privacy practices, please contact us at:
 
-**Email:** support@moneymanagementapp.com  
+**Email:** prasadsanap8149@gmail.com  
 **Subject:** Privacy Policy Inquiry
 
 ## 13. Permissions Explanation
