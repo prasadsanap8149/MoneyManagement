@@ -146,6 +146,35 @@
 - Device IDs: Optional for advertising
 - App activity: Optional for analytics
 
+### Storage Access Framework (SAF) Implementation
+
+#### **Android 11+ Compatibility**
+- **Storage Access Framework**: Uses modern SAF for file operations
+- **No Storage Permissions**: No storage permissions required on Android 11+
+- **Scoped Storage**: Full compliance with Android scoped storage requirements
+- **User Control**: Users select files through system file picker
+- **Security**: Direct file access without broad storage permissions
+
+#### **Legacy Android Support**
+- **Android 10-**: Minimal storage permissions only when necessary
+- **Graceful Degradation**: Maintains functionality on older devices
+- **Permission Transparency**: Clear explanation when permissions are needed
+
+### Import/Export Security
+
+#### **JSON Import Process**
+- **File Validation**: Only JSON files with valid transaction format accepted
+- **Duplicate Prevention**: Automatic detection and skipping of duplicate transactions
+- **Data Integrity**: Validation of imported data before processing
+- **Append-Only**: New transactions added without replacing existing data
+- **User Feedback**: Clear reporting of import results and any issues
+
+#### **Export Security**
+- **Local Processing**: All export operations processed locally
+- **No Cloud Upload**: Exported files shared through system share dialog
+- **Format Options**: Multiple secure export formats (JSON, CSV, PDF, Excel)
+- **Data Privacy**: No external servers involved in export process
+
 ### Contact Information
 For data privacy questions or requests:
 - Email: privacy@securemoney.app
