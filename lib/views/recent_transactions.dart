@@ -179,11 +179,15 @@ class _RecentTransactionsState extends State<RecentTransactions> {
       return;
     }
     
-    // Show confirmation dialog
+    // Show confirmation dialog explaining the import behavior
     final confirmed = await UserExperienceHelper.showConfirmationDialog(
       context,
       title: 'Import Transactions',
-      message: 'This will replace your current transactions with imported data. Are you sure?',
+      message: 'This will import transactions from a JSON file and add them to your existing data.\n\n'
+               '• Only JSON files exported from SecureMoney are supported\n'
+               '• Duplicate transactions will be automatically skipped\n'
+               '• Your existing transactions will NOT be replaced\n\n'
+               'Do you want to continue?',
       confirmText: 'Import',
       cancelText: 'Cancel',
       confirmColor: Colors.blue,
@@ -199,33 +203,35 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     );
 
     try {
-      // Use FileOperationsService for import with permission handling
-      final jsonStr = await FileOperationsService().importFile(
-        context,
-        feature: 'import transactions',
-      );
+      // Use FileOperationsService for JSON import with file restriction
+      final jsonStr = await FileOperationsService().importTransactionJsonFile(context);
       
       if (jsonStr != null) {
         try {
-          // Use secure storage to restore transactions
-          await _secureStorage.restoreTransactions(jsonStr);
+          // Use secure storage to import and append transactions (not replace)
+          final newTransactionCount = await _secureStorage.importAndAppendTransactions(jsonStr);
 
           // Reload in app
           await _loadTransactions();
 
           loadingSnackbar.close();
           
-          // Get transaction count for success message
-          final transactions = await _secureStorage.loadTransactions();
-          UserExperienceHelper.showSuccessSnackbar(
-            context,
-            'Transactions imported successfully! ${transactions.length} transactions loaded.',
-          );
+          if (newTransactionCount > 0) {
+            UserExperienceHelper.showSuccessSnackbar(
+              context,
+              'Successfully imported $newTransactionCount new transactions! (Duplicates were skipped)',
+            );
+          } else {
+            UserExperienceHelper.showInfoSnackbar(
+              context,
+              'No new transactions to import. All transactions from the file already exist.',
+            );
+          }
         } catch (e) {
           loadingSnackbar.close();
           UserExperienceHelper.showErrorSnackbar(
             context,
-            'Import failed: Invalid file format. Please ensure the file is a valid JSON export.',
+            'Import failed: Invalid transaction file format. Please ensure the file is a valid SecureMoney JSON export.',
           );
         }
       } else {
