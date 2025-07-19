@@ -11,6 +11,7 @@ import 'package:secure_money_management/models/transaction_model.dart';
 import 'package:secure_money_management/services/file_operations_service.dart';
 import 'package:secure_money_management/utils/user_experience_helper.dart';
 import 'package:secure_money_management/ad_service/widgets/interstitial_ad.dart';
+import 'package:secure_money_management/services/secure_transaction_service.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,14 +25,37 @@ class RecentTransactions extends StatefulWidget {
 
 class _RecentTransactionsState extends State<RecentTransactions> {
   late List<TransactionModel> transactions = [];
+  final SecureTransactionService _secureStorage = SecureTransactionService();
 
   @override
   void initState() {
     super.initState();
-    _checkInternetAndLoad();
+    _initializeSecureStorage();
     
     // Pre-load interstitial ad for import/export functionality
     _initializeInterstitialAds();
+  }
+
+  /// Initialize secure storage and perform migration if needed
+  Future<void> _initializeSecureStorage() async {
+    try {
+      // Initialize the secure transaction service
+      await _secureStorage.initialize();
+      
+      // Attempt to migrate from plain text storage
+      final migrated = await _secureStorage.migrateFromPlainTextStorage();
+      if (migrated) {
+        debugPrint('Successfully migrated transactions to encrypted storage');
+      }
+      
+      // Load transactions after initialization/migration
+      await _checkInternetAndLoad();
+      
+    } catch (e) {
+      debugPrint('Error initializing secure storage: $e');
+      // Fallback to loading without migration
+      await _checkInternetAndLoad();
+    }
   }
 
   /// Initialize and pre-load interstitial ads for better user experience
@@ -99,10 +123,10 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     );
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final transactionsJson = prefs.getString('transactions');
+      // Use secure storage to get transactions for export
+      final transactionsJson = await _secureStorage.backupTransactions();
 
-      if (transactionsJson == null) {
+      if (transactionsJson.isEmpty || transactionsJson == '[]') {
         loadingSnackbar.close();
         UserExperienceHelper.showWarningSnackbar(
           context,
@@ -183,21 +207,19 @@ class _RecentTransactionsState extends State<RecentTransactions> {
       
       if (jsonStr != null) {
         try {
-          final decodedList = jsonDecode(jsonStr) as List;
-          final List<TransactionModel> importedTransactions =
-              decodedList.map((item) => TransactionModel.fromJson(item)).toList();
-
-          // Save back to SharedPreferences
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('transactions', jsonEncode(importedTransactions));
+          // Use secure storage to restore transactions
+          await _secureStorage.restoreTransactions(jsonStr);
 
           // Reload in app
           await _loadTransactions();
 
           loadingSnackbar.close();
+          
+          // Get transaction count for success message
+          final transactions = await _secureStorage.loadTransactions();
           UserExperienceHelper.showSuccessSnackbar(
             context,
-            'Transactions imported successfully! ${importedTransactions.length} transactions loaded.',
+            'Transactions imported successfully! ${transactions.length} transactions loaded.',
           );
         } catch (e) {
           loadingSnackbar.close();
@@ -473,16 +495,45 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     }
   }
 
-  // Load transactions from local storage
+  // Load transactions from secure storage
   Future<void> _loadTransactions() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? savedTransactions = prefs.getString('transactions');
-    if (savedTransactions != null) {
-      List<dynamic> decodedTransactions = jsonDecode(savedTransactions);
+    try {
+      final loadedTransactions = await _secureStorage.loadTransactions();
       setState(() {
-        transactions = decodedTransactions
+        transactions = loadedTransactions;
+      });
+    } catch (e) {
+      debugPrint('Error loading transactions: $e');
+      // If secure loading fails, try to load from legacy storage and migrate
+      await _tryLegacyMigration();
+    }
+  }
+
+  /// Try to load from legacy storage and migrate to secure storage
+  Future<void> _tryLegacyMigration() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? savedTransactions = prefs.getString('transactions');
+      if (savedTransactions != null) {
+        List<dynamic> decodedTransactions = jsonDecode(savedTransactions);
+        final legacyTransactions = decodedTransactions
             .map((json) => TransactionModel.fromJson(json))
             .toList();
+        
+        // Migrate to secure storage
+        await _secureStorage.saveTransactions(legacyTransactions);
+        await prefs.remove('transactions'); // Remove legacy storage
+        
+        setState(() {
+          transactions = legacyTransactions;
+        });
+        
+        debugPrint('Successfully migrated ${legacyTransactions.length} transactions from legacy storage');
+      }
+    } catch (e) {
+      debugPrint('Error during legacy migration: $e');
+      setState(() {
+        transactions = [];
       });
     }
   }
