@@ -1,5 +1,4 @@
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 
 import '../models/transaction_model.dart';
@@ -12,20 +11,13 @@ class UtilService{
    }
     final indianRupeeFormat = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
 
+    /// Deprecated - Storage permissions are no longer needed for Android 11+
+    /// File operations now use SAF (Storage Access Framework) automatically
+    @deprecated
     Future<void> requestStoragePermission() async {
-      final status = await Permission.storage.status;
-
-      if (!status.isGranted) {
-        final result = await Permission.storage.request();
-        if (result.isGranted) {
-          debugPrint("Storage permission granted");
-        } else if (result.isPermanentlyDenied) {
-          // Direct user to app settings
-          openAppSettings();
-        } else {
-          debugPrint("Storage permission denied");
-        }
-      }
+      debugPrint("Storage permission request is deprecated. Using SAF instead.");
+      // Note: This method is kept for compatibility but does nothing
+      // File operations now use SAF which doesn't require permissions on Android 11+
     }
 }
 final UtilService utilService=UtilService();
