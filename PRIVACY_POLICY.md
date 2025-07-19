@@ -37,6 +37,11 @@ This privacy policy describes how Secure Money - Personal Finance Manager App ("
 - Analyze app usage to improve features and user experience
 - Identify and fix bugs and performance issues
 
+### 3.4 Theme Customization
+- Store user theme preferences (light, dark, or system)
+- Provide consistent visual experience across app sessions
+- Support system-wide theme changes and automatic adaptation
+
 ## 4. Data Storage and Security
 
 ### 4.1 Local Storage
@@ -48,6 +53,18 @@ This privacy policy describes how Secure Money - Personal Finance Manager App ("
 - Data encryption at rest and in transit
 - Secure data export/import processes
 - Regular security updates and patches
+
+### 4.3 Modern File Access (Android 11+)
+- Uses Storage Access Framework (SAF) for secure file operations
+- No storage permissions required on Android 11 and higher
+- File access through system-provided file picker only
+- Full compliance with Android scoped storage requirements
+
+### 4.4 Smart Import System
+- JSON-only transaction imports with comprehensive validation
+- Append-mode imports that preserve existing data
+- Automatic duplicate detection and prevention
+- Real-time feedback on import operations and results
 
 ## 5. Data Sharing and Disclosure
 
