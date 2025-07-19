@@ -105,9 +105,13 @@ open feature_graphic_template.html
 - **Content**: Transaction list, search, filters
 - **Purpose**: Data organization, usability
 
-#### **Screenshot 5: Security/Settings**
-- **Content**: Security options, backup, preferences
-- **Purpose**: Trust, privacy, customization
+#### **Screenshot 5: Settings & Theme**
+- **Content**: App settings, theme options, file operations info
+- **Purpose**: Customization options, modern UI features
+
+#### **🆕 Screenshot 6: Import Feature (Optional)**
+- **Content**: Smart import dialog, JSON file selection
+- **Purpose**: Highlight new append-only import functionality
 
 ### **Technical Requirements:**
 - **Resolution**: Minimum 1080px width
