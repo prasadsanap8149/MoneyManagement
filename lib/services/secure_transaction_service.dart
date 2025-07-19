@@ -225,4 +225,41 @@ class SecureTransactionService {
       return false;
     }
   }
+
+  /// Migrate existing plain text transactions to encrypted storage
+  Future<bool> migrateFromPlainTextStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Check if plain text transactions exist
+      final plainTextTransactions = prefs.getString('transactions');
+      if (plainTextTransactions == null) {
+        return false; // No migration needed
+      }
+      
+      // Check if encrypted transactions already exist
+      final encryptedTransactions = prefs.getStringList(_transactionsKey);
+      if (encryptedTransactions != null && encryptedTransactions.isNotEmpty) {
+        // Encrypted storage already exists, don't migrate
+        return false;
+      }
+      
+      // Parse plain text transactions
+      final List<dynamic> decodedTransactions = json.decode(plainTextTransactions);
+      final transactions = decodedTransactions
+          .map((json) => TransactionModel.fromJson(json))
+          .toList();
+      
+      // Save to encrypted storage
+      await saveTransactions(transactions);
+      
+      // Remove plain text storage
+      await prefs.remove('transactions');
+      
+      return true; // Migration completed successfully
+      
+    } catch (e) {
+      throw Exception('Failed to migrate transactions: $e');
+    }
+  }
 }
