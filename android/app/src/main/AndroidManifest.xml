@@ -1,16 +1,12 @@
 <manifest xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Storage permissions for Android 12 and below -->
+    <!-- Legacy storage permissions only for Android 10 and below -->
+    <!-- For Android 11+ (API 30+), we use SAF (Storage Access Framework) via file_picker without permissions -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
+        android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    
-    <!-- Media permissions for Android 13+ (API 33+) -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+        android:maxSdkVersion="29" />
     
     <!-- Internet permission for ads and data sync -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -20,7 +16,8 @@
         android:label="SecureMoney"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
