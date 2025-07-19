@@ -1,11 +1,11 @@
-# Privacy Policy for Money Management App
+# Privacy Policy for Secure Money - Personal Finance Manager App
 
 **Effective Date:** June 1, 2025  
 **Last Updated:** June 1, 2025
 
 ## 1. Introduction
 
-This privacy policy describes how Money Management App ("we," "our," or "us") collects, uses, and protects your information when you use our mobile application.
+This privacy policy describes how Secure Money - Personal Finance Manager App ("we," "our," or "us") collects, uses, and protects your information when you use our mobile application.
 
 ## 2. Information We Collect
 
