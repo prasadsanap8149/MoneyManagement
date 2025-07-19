@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:secure_money_management/helper/constants.dart';
 import 'package:secure_money_management/utils/util_services.dart';
-import 'package:secure_money_management/services/app_permission_handler.dart';
-import 'package:secure_money_management/utils/user_experience_helper.dart';
-import 'package:secure_money_management/utils/app_settings_helper.dart';
+import 'package:secure_money_management/widgets/theme_settings_widget.dart';
+import 'package:secure_money_management/services/file_operations_service.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
@@ -52,8 +51,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => _showPermissionSettingsDialog(context),
-            tooltip: 'Permission Settings',
+            onPressed: () => _showAppSettingsDialog(context),
+            tooltip: 'App Settings',
           ),
         ],
       ),
@@ -215,109 +214,105 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  /// Show permission settings dialog
-  Future<void> _showPermissionSettingsDialog(BuildContext context) async {
-    // Check current permission status
-    final hasPermission = await AppPermissionHandler().checkStoragePermission();
-
+  /// Show comprehensive app settings dialog
+  Future<void> _showAppSettingsDialog(BuildContext context) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Row(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Row(
             children: [
-              Icon(
-                hasPermission ? Icons.check_circle : Icons.settings,
-                color: hasPermission ? Colors.green : Colors.blue,
-              ),
-              const SizedBox(width: 8),
-              const Expanded(child: Text('Storage Permission')),
+              Icon(Icons.settings, color: Colors.blue),
+              SizedBox(width: 8),
+              Text('App Settings'),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: hasPermission
-                      ? Colors.green.shade50
-                      : Colors.orange.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      hasPermission ? Icons.check : Icons.warning,
-                      color: hasPermission ? Colors.green : Colors.orange,
-                      size: 20,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Theme Settings Section
+                const ThemeSettingsWidget(),
+                const SizedBox(height: 16),
+                
+                // File Operations Info
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.file_copy, color: Theme.of(context).primaryColor),
+                            const SizedBox(width: 8),
+                            Text(
+                              'File Operations',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const Text('✓ Export data as CSV, PDF, Excel, JSON'),
+                        const Text('✓ Import transaction data from files'),
+                        const Text('✓ Share reports with other apps'),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Uses Storage Access Framework (no permissions required on Android 11+)',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton.icon(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await FileOperationsService().showFileOperationsInfo(context);
+                          },
+                          icon: const Icon(Icons.info_outline),
+                          label: const Text('More Info'),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        hasPermission
-                            ? 'Storage permission is granted. You can use all import/export features.'
-                            : 'Storage permission is not granted. Import/export features are disabled.',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Storage permission allows you to:',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              const Text('• Export transactions as JSON, CSV, PDF, Excel'),
-              const Text('• Import transaction data from files'),
-              const Text('• Share transaction reports'),
-            ],
+                
+                const SizedBox(height: 16),
+                
+                // App Information
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info, color: Theme.of(context).primaryColor),
+                            const SizedBox(width: 8),
+                            Text(
+                              'About SecureMoney',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const Text('✓ End-to-end encryption for all data'),
+                        const Text('✓ Local storage (no cloud dependency)'),
+                        const Text('✓ Privacy-focused design'),
+                        const Text('✓ Modern Android compatibility'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Close'),
             ),
-            if (!hasPermission) ...[
-              ElevatedButton(
-                onPressed: () async {
-                  Navigator.of(context).pop();
-
-                  // Request permission
-                  final granted =
-                      await AppPermissionHandler().requestStoragePermission();
-
-                  if (granted) {
-                    UserExperienceHelper.showSuccessSnackbar(
-                      context,
-                      'Storage permission granted! You can now use import/export features.',
-                    );
-                  } else {
-                    // Show app settings dialog
-                    await AppSettingsHelper.showOpenSettingsDialog(
-                      context,
-                      title: 'Enable Storage Permission',
-                      message:
-                          'To use import/export features, please enable storage permission in app settings.',
-                      feature: 'import/export',
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text('Enable Permission'),
-              ),
-            ],
           ],
         );
       },
