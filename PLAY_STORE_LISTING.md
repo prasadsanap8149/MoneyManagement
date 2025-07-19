@@ -23,9 +23,12 @@ Secure personal finance app with end-to-end encryption for tracking expenses and
 
 📊 **Powerful Features**
 - Dashboard with real-time balance and spending overview
-- Import/Export data in multiple formats (CSV, Excel, PDF)
+- **Smart Import System**: Add new transactions without replacing existing data
+- **JSON-Only Imports**: Secure transaction data imports with duplicate detection
+- **Multiple Export Formats**: CSV, Excel, PDF, and JSON with full data portability
+- **Dark Theme Support**: Beautiful dark mode with system-wide theme switching
 - Offline functionality - no internet required for core features
-- Clean, intuitive Material Design interface
+- Clean, intuitive Material Design 3 interface
 
 🎯 **Perfect For**
 - Personal budget tracking
@@ -33,19 +36,30 @@ Secure personal finance app with end-to-end encryption for tracking expenses and
 - Income management
 - Financial planning
 - Small business expense tracking
+- Data migration from other finance apps
 
 ✨ **Key Benefits**
+- **No Storage Permissions Required** on Android 11+
+- Uses modern Storage Access Framework (SAF) for secure file access
 - 100% privacy-focused - your data belongs to you
 - No registration required - start using immediately
+- **Automatic Duplicate Prevention** during data imports
 - Lightweight and fast performance
 - Regular updates with new features
 - Free to use with optional ads
 
 🛡️ **Privacy First**
 - No personal information collected
+- **Storage Access Framework** compliance for Android 11+
 - No cloud sync means no data breaches
 - Transparent privacy policy
 - GDPR and CCPA compliant
+
+📱 **Modern Android Compatibility**
+- **Android 11+ Optimized**: Uses SAF for permission-free file operations
+- **Scoped Storage Compliant**: Full compatibility with modern Android security
+- **Legacy Support**: Maintains functionality on older Android versions
+- **Theme Integration**: Automatic dark/light theme detection
 
 📱 **Why Choose SecureMoney?**
 Unlike other finance apps that store your data in the cloud, SecureMoney keeps everything local and encrypted. Your financial information is yours alone - we can't see it, access it, or sell it to third parties.
@@ -91,9 +105,16 @@ https://yourdomain.com/privacy-policy
 6. Regular security updates
 
 ## Permissions Justification
-- **Storage Access**: To import/export your financial data securely
+- **No Storage Permissions**: Android 11+ uses Storage Access Framework (SAF) for secure file access
 - **Internet Access**: To display non-intrusive ads and check for updates
 - **Network State**: To optimize app performance and ad delivery
+- **Legacy Storage**: Minimal permissions only for Android 10 and below when needed
+
+## Modern Android Features
+- **Storage Access Framework (SAF)**: Permission-free file operations on Android 11+
+- **Smart Import System**: JSON-only transaction imports with duplicate detection
+- **Scoped Storage Compliance**: Full adherence to modern Android security standards
+- **Dark Theme Support**: System-wide theme integration and manual overrides
 
 ## Monetization
 - Free with optional banner ads
