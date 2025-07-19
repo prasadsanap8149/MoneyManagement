@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:secure_money_management/helper/constants.dart';
+import 'package:secure_money_management/services/secure_transaction_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
@@ -22,6 +23,7 @@ class TransactionScreen extends StatefulWidget {
 
 class _TransactionScreenState extends State<TransactionScreen> {
   List<TransactionModel> _transactions = [];
+  final SecureTransactionService _secureStorage = SecureTransactionService();
 
   // Format numbers as Indian Rupees (₹)
   final indianRupeeFormat = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
@@ -29,10 +31,29 @@ class _TransactionScreenState extends State<TransactionScreen> {
   @override
   void initState() {
     super.initState();
-    _loadTransactions(); // Load transactions from local storage when screen loads
-    // setState(() {
-    //   _transactions=Constants.transaction;
-    // });
+    _initializeAndLoadTransactions(); // Initialize secure storage and load transactions
+  }
+
+  /// Initialize secure storage and load transactions
+  Future<void> _initializeAndLoadTransactions() async {
+    try {
+      // Initialize the secure transaction service
+      await _secureStorage.initialize();
+      
+      // Attempt to migrate from plain text storage
+      final migrated = await _secureStorage.migrateFromPlainTextStorage();
+      if (migrated) {
+        debugPrint('Successfully migrated transactions to encrypted storage');
+      }
+      
+      // Load transactions after initialization/migration
+      await _loadTransactions();
+      
+    } catch (e) {
+      debugPrint('Error initializing secure storage: $e');
+      // Fallback to loading without migration
+      await _loadTransactions();
+    }
   }
 
   @override
@@ -135,17 +156,40 @@ class _TransactionScreenState extends State<TransactionScreen> {
   // Load transactions from local storage
   Future<void> _loadTransactions() async {
     try {
+      final loadedTransactions = await _secureStorage.loadTransactions();
+      setState(() {
+        _transactions = loadedTransactions;
+      });
+    } catch (e) {
+      debugPrint('Error loading transactions: $e');
+      // Try legacy migration as fallback
+      await _tryLegacyMigration();
+    }
+  }
+
+  /// Try to load from legacy storage and migrate to secure storage
+  Future<void> _tryLegacyMigration() async {
+    try {
       final prefs = await SharedPreferences.getInstance();
       final String? savedTransactions = prefs.getString('transactions');
       if (savedTransactions != null) {
         List<dynamic> decodedTransactions = jsonDecode(savedTransactions);
+        final legacyTransactions = decodedTransactions
+            .map((json) => TransactionModel.fromJson(json))
+            .toList();
+        
+        // Migrate to secure storage
+        await _secureStorage.saveTransactions(legacyTransactions);
+        await prefs.remove('transactions'); // Remove legacy storage
+        
         setState(() {
-          _transactions = decodedTransactions
-              .map((json) => TransactionModel.fromJson(json))
-              .toList();
+          _transactions = legacyTransactions;
         });
+        
+        debugPrint('Successfully migrated ${legacyTransactions.length} transactions from legacy storage');
       }
     } catch (e) {
+      debugPrint('Error during legacy migration: $e');
       // Show error toaster if loading fails
       UserExperienceHelper.showErrorSnackbar(
         context,
@@ -157,10 +201,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
   // Save transactions to local storage
   Future<void> _saveTransactionsToLocalStorage() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String transactionsJson =
-          jsonEncode(_transactions.map((txn) => txn.toJson()).toList());
-      await prefs.setString('transactions', transactionsJson);
+      // Use secure storage to save transactions
+      await _secureStorage.saveTransactions(_transactions);
     } catch (e) {
       // Show error toaster if saving fails
       UserExperienceHelper.showErrorSnackbar(
