@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -126,6 +127,71 @@ class FileOperationsService {
       }
     } catch (e) {
       debugPrint('Error importing file: $e');
+      if (context.mounted) {
+        UserExperienceHelper.showErrorSnackbar(
+          context,
+          'Failed to import file: ${e.toString()}',
+        );
+      }
+      return null;
+    }
+  }
+
+  /// Import JSON transaction file specifically (restricts to JSON files only)
+  Future<String?> importTransactionJsonFile(BuildContext context) async {
+    try {
+      // FilePicker with JSON file restriction
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'], // Only allow JSON files
+        allowMultiple: false,
+        dialogTitle: 'Select Transaction JSON File',
+      );
+
+      if (result == null || result.files.isEmpty) {
+        return null;
+      }
+
+      final file = result.files.first;
+      
+      // Validate file extension
+      if (file.extension?.toLowerCase() != 'json') {
+        if (context.mounted) {
+          UserExperienceHelper.showErrorSnackbar(
+            context,
+            'Please select a valid JSON file for transaction import.',
+          );
+        }
+        return null;
+      }
+      
+      // Read file content
+      String content;
+      if (file.bytes != null) {
+        content = String.fromCharCodes(file.bytes!);
+      } else if (file.path != null) {
+        final fileData = File(file.path!);
+        content = await fileData.readAsString();
+      } else {
+        throw Exception('Unable to read file data');
+      }
+      
+      // Basic JSON validation
+      try {
+        json.decode(content);
+      } catch (e) {
+        if (context.mounted) {
+          UserExperienceHelper.showErrorSnackbar(
+            context,
+            'Invalid JSON file format. Please select a valid transaction export file.',
+          );
+        }
+        return null;
+      }
+      
+      return content;
+    } catch (e) {
+      debugPrint('Error importing JSON file: $e');
       if (context.mounted) {
         UserExperienceHelper.showErrorSnackbar(
           context,
