@@ -105,21 +105,120 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<TransactionModel> _transactions = []; // List to hold transactions
   double _totalBalance = 0.0;
   int _selectedIndex = 0; // Index to track the selected tab
   final SecureTransactionService _secureStorage = SecureTransactionService();
+  bool _isLoading = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this); // Add lifecycle observer
     _initializeAndLoadTransactions(); // Initialize secure storage and load transactions
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // Remove lifecycle observer
+    super.dispose();
+  }
+
+  /// Handle app lifecycle changes (background/foreground)
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // App resumed from background - refresh data if needed
+        debugPrint('App resumed from background - refreshing data');
+        if (_isInitialized) {
+          _refreshDataOnResume();
+        }
+        break;
+      case AppLifecycleState.paused:
+        // App went to background
+        debugPrint('App went to background');
+        break;
+      case AppLifecycleState.inactive:
+        // App became inactive (e.g., phone call)
+        debugPrint('App became inactive');
+        break;
+      case AppLifecycleState.detached:
+        // App is being terminated
+        debugPrint('App is being terminated');
+        break;
+      case AppLifecycleState.hidden:
+        // App is hidden (iOS/Android specific)
+        debugPrint('App is hidden');
+        break;
+    }
+  }
+
+  /// Refresh data when app resumes from background
+  Future<void> _refreshDataOnResume() async {
+    if (_isLoading) return; // Prevent multiple simultaneous refreshes
+    
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      
+      // Reload transactions to ensure data is fresh
+      await _loadTransactions();
+      
+      setState(() {
+        _isLoading = false;
+      });
+      
+      debugPrint('Data refreshed successfully on app resume');
+    } catch (e) {
+      debugPrint('Error refreshing data on app resume: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      
+      // If refresh fails, try reinitializing
+      _reinitializeApp();
+    }
+  }
+
+  /// Reinitialize the app if something goes wrong
+  Future<void> _reinitializeApp() async {
+    debugPrint('Reinitializing app due to error...');
+    try {
+      setState(() {
+        _isInitialized = false;
+        _isLoading = true;
+      });
+      
+      await _initializeAndLoadTransactions();
+      
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error during app reinitialization: $e');
+      setState(() {
+        _isLoading = false;
+        _transactions = [];
+        _totalBalance = 0.0;
+      });
+    }
   }
 
   /// Initialize secure storage and load transactions
   Future<void> _initializeAndLoadTransactions() async {
+    if (_isLoading) return; // Prevent multiple simultaneous initializations
+    
     try {
+      setState(() {
+        _isLoading = true;
+      });
+      
       // Initialize the secure transaction service
       await _secureStorage.initialize();
       
@@ -133,17 +232,40 @@ class _HomeScreenState extends State<HomeScreen> {
       await _loadTransactions();
       _calculateBalance();
       
+      setState(() {
+        _isInitialized = true;
+        _isLoading = false;
+      });
+      
     } catch (e) {
       debugPrint('Error initializing secure storage in main.dart: $e');
+      
       // Fallback to loading without migration
-      await _loadTransactions();
-      _calculateBalance();
+      try {
+        await _loadTransactions();
+        _calculateBalance();
+        
+        setState(() {
+          _isInitialized = true;
+          _isLoading = false;
+        });
+      } catch (fallbackError) {
+        debugPrint('Fallback loading also failed: $fallbackError');
+        setState(() {
+          _isInitialized = false;
+          _isLoading = false;
+          _transactions = [];
+          _totalBalance = 0.0;
+        });
+      }
     }
     
     // Initialize non-critical services lazily after UI is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      LazyInitializationService.instance.initializeLazily();
-    });
+    if (_isInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        LazyInitializationService.instance.initializeLazily();
+      });
+    }
   }
 
   @override
@@ -156,25 +278,66 @@ class _HomeScreenState extends State<HomeScreen> {
           const ThemeToggleButton(),
         ],
       ),
-      body: _getSelectedScreen(),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Transactions',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.pie_chart),
-            label: 'Reports',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-      ),
+      body: _isLoading 
+        ? const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Loading your financial data...'),
+              ],
+            ),
+          )
+        : !_isInitialized
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Colors.orange,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Unable to load data',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Please check your internet connection and try again.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _reinitializeApp,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : _getSelectedScreen(),
+      bottomNavigationBar: (!_isLoading && _isInitialized) 
+        ? BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.dashboard),
+                label: 'Dashboard',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.list),
+                label: 'Transactions',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.pie_chart),
+                label: 'Reports',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+          )
+        : null,
     );
   }
 
@@ -212,10 +375,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadTransactions() async {
     try {
       final loadedTransactions = await _secureStorage.loadTransactions();
-      setState(() {
-        _transactions = loadedTransactions;
-      });
-      _calculateBalance(); // Recalculate balance after loading transactions
+      if (mounted) {
+        setState(() {
+          _transactions = loadedTransactions;
+        });
+        _calculateBalance(); // Recalculate balance after loading transactions
+      }
     } catch (e) {
       debugPrint('Error loading transactions in main.dart: $e');
       // Try legacy migration as fallback
@@ -238,18 +403,22 @@ class _HomeScreenState extends State<HomeScreen> {
         await _secureStorage.saveTransactions(legacyTransactions);
         await prefs.remove('transactions'); // Remove legacy storage
         
-        setState(() {
-          _transactions = legacyTransactions;
-        });
-        
-        _calculateBalance(); // Recalculate balance after migration
+        if (mounted) {
+          setState(() {
+            _transactions = legacyTransactions;
+          });
+          
+          _calculateBalance(); // Recalculate balance after migration
+        }
         debugPrint('Successfully migrated ${legacyTransactions.length} transactions from legacy storage in main.dart');
       }
     } catch (e) {
       debugPrint('Error during legacy migration in main.dart: $e');
-      setState(() {
-        _transactions = [];
-      });
+      if (mounted) {
+        setState(() {
+          _transactions = [];
+        });
+      }
     }
   }
 
@@ -269,11 +438,36 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     
-    setState(() {
-      _totalBalance = balance; // Update the total balance
-    });
+    if (mounted) {
+      setState(() {
+        _totalBalance = balance; // Update the total balance
+      });
+    }
     
     // Debug output (can be removed in production)
     debugPrint('Main - Loaded ${_transactions.length} transactions, Income: $totalIncome, Expenses: $totalExpenses, Balance: $balance');
+  }
+
+  /// Handle memory pressure and cleanup
+  @override
+  void didHaveMemoryPressure() {
+    super.didHaveMemoryPressure();
+    debugPrint('Memory pressure detected - performing cleanup');
+    
+    // Clear any cached data that can be reloaded
+    // Note: We keep essential transaction data but could clear UI caches
+    LazyInitializationService.instance.clearCaches();
+  }
+
+  /// Handle platform messages (for additional error recovery)
+  @override
+  void didChangePlatformBrightness() {
+    super.didChangePlatformBrightness();
+    // Ensure UI updates properly when system theme changes
+    if (mounted) {
+      setState(() {
+        // Force rebuild to handle theme changes properly
+      });
+    }
   }
 }
