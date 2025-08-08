@@ -175,12 +175,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 5),
-
+                const SizedBox(height: 1),
                 // Import/Export Quick Actions
                 _buildImportExportSection(),
 
-                const SizedBox(height: 5),
               ],
             ),
           ),
@@ -195,7 +193,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     // Header (fixed)
                     Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(10.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -213,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Container(
                                   margin: const EdgeInsets.only(left: 8),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
+                                      horizontal: 3, vertical: 1),
                                   decoration: BoxDecoration(
                                     color: Theme.of(context)
                                         .primaryColor
@@ -261,22 +259,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     // Scrollable content with animation
                     Expanded(
-                      child: AnimatedSwitcher(
+                      child: // Scrollable content with animation
+                          AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
                         child: widget.transactions.isEmpty
-                            ? const Center(
+                            ? const Padding(
                                 key: ValueKey('empty'),
-                                child: Padding(
-                                  padding: EdgeInsets.all(32.0),
+                                padding: EdgeInsets.all(0.0),
+                                child: Center(
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
                                         Icons.receipt_long_outlined,
                                         size: 48,
                                         color: Colors.grey,
                                       ),
-                                      SizedBox(height: 8),
+                                      SizedBox(height: 1),
                                       Text(
                                         'No transactions yet',
                                         style: TextStyle(
@@ -284,7 +283,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           color: Colors.grey,
                                         ),
                                       ),
-                                      SizedBox(height: 4),
+                                      SizedBox(height: 1),
                                       Text(
                                         'Tap the + button to add your first transaction',
                                         style: TextStyle(
@@ -297,8 +296,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                 ),
                               )
-                            : _buildScrollableTransactions(
-                                key: ValueKey(_isTransactionListExpanded)),
+                            : Expanded(
+                                key: ValueKey(_isTransactionListExpanded),
+                                child: _buildScrollableTransactions(),
+                              ),
                       ),
                     ),
                   ],
@@ -306,7 +307,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 1),
         ],
       ),
     );
