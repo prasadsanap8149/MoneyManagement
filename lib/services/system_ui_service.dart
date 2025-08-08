@@ -86,4 +86,29 @@ class SystemUIService {
       );
     }
   }
+
+  /// Lock app to portrait orientation to prevent overflow issues
+  Future<void> lockToPortrait() async {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  /// Allow all orientations (if needed for specific screens)
+  Future<void> allowAllOrientations() async {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  /// Force portrait up only (strictest option)
+  Future<void> forcePortraitUp() async {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+  }
 }
