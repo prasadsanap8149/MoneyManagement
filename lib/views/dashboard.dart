@@ -421,27 +421,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: MediaQuery.of(context).size.height * 0.8,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.surface,
-                  Theme.of(context).colorScheme.surface.withOpacity(0.95),
-                ],
-              ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.95,
+              maxHeight: MediaQuery.of(context).size.height * 0.85,
+              minWidth: 300,
+              minHeight: 400,
             ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surface.withOpacity(0.95),
+                  ],
+                ),
+              ),
             child: DefaultTabController(
               length: 4,
               child: Column(
                 children: [
                   // Header with close button
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                       color: Theme.of(context).primaryColor.withOpacity(0.1),
@@ -466,12 +471,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                               Text(
                                 'Customize your SecureMoney experience',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Colors.grey.shade600,
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
                               ),
                             ],
                           ),
@@ -499,13 +507,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       labelColor: Theme.of(context).primaryColor,
                       unselectedLabelColor: Colors.grey.shade600,
                       indicatorColor: Theme.of(context).primaryColor,
-                      labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
+                      labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 10),
+                      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 10),
+                      isScrollable: false,
                       tabs: const [
-                        Tab(icon: Icon(Icons.palette, size: 20), text: 'Theme'),
-                        Tab(icon: Icon(Icons.language, size: 20), text: 'Region'),
-                        Tab(icon: Icon(Icons.storage, size: 20), text: 'Data'),
-                        Tab(icon: Icon(Icons.info, size: 20), text: 'About'),
+                        Tab(icon: Icon(Icons.palette, size: 18), text: 'Theme'),
+                        Tab(icon: Icon(Icons.language, size: 18), text: 'Region'),
+                        Tab(icon: Icon(Icons.storage, size: 18), text: 'Data'),
+                        Tab(icon: Icon(Icons.info, size: 18), text: 'About'),
                       ],
                     ),
                   ),
@@ -532,8 +541,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// Build Theme Settings Tab
   Widget _buildThemeSettingsTab(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -549,18 +558,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             'Customize the look and feel of your app',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey.shade600,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Theme Settings Widget
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
@@ -569,11 +578,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: const ThemeSettingsWidget(),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Additional theme options
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
@@ -651,8 +660,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// Build Region Settings Tab
   Widget _buildRegionSettingsTab(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -668,18 +677,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             'Set your location and currency preferences',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey.shade600,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Current Settings Display
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -730,7 +739,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       }
                     },
                     icon: const Icon(Icons.edit, size: 18),
-                    label: const Text('Change Country/Currency'),
+                    label: const Text(
+                      'Change Country/Currency',
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -743,11 +755,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Additional Info
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(12),
@@ -790,8 +802,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// Build Data Management Tab
   Widget _buildDataManagementTab(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -807,18 +819,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             'Manage your transaction data and security',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey.shade600,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Data Statistics
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -865,11 +877,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Quick Actions
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
@@ -928,8 +940,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   /// Build About Tab
   Widget _buildAboutTab(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -945,18 +957,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             'Privacy-focused personal finance manager',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey.shade600,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // App Info
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -996,11 +1008,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Features
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
@@ -1113,29 +1125,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required VoidCallback onTap,
   }) {
     return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
         ),
-        child: Icon(icon, color: Theme.of(context).primaryColor, size: 20),
+        child: Icon(icon, color: Theme.of(context).primaryColor, size: 18),
       ),
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 11,
           color: Colors.grey.shade600,
         ),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 2,
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 14),
       onTap: onTap,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
       ),
     );
   }
