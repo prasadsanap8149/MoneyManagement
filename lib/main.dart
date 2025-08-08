@@ -11,12 +11,16 @@ import 'package:secure_money_management/services/lazy_initialization_service.dar
 import 'package:secure_money_management/services/secure_transaction_service.dart';
 import 'package:secure_money_management/services/theme_service.dart';
 import 'package:secure_money_management/services/currency_service.dart';
+import 'package:secure_money_management/services/system_ui_service.dart';
 import 'package:secure_money_management/widgets/theme_settings_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/transaction_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Configure system UI for edge-to-edge display using modern APIs
+  SystemUIService.instance.resetToEdgeToEdge();
   
   // Initialize theme service
   final themeService = ThemeService();
@@ -39,6 +43,14 @@ class MoneyManagementApp extends StatelessWidget {
       value: themeService,
       child: Consumer<ThemeService>(
         builder: (context, themeService, child) {
+          // Configure system UI based on current theme
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            SystemUIService.instance.configureForTheme(
+              themeService.themeMode, 
+              context
+            );
+          });
+          
           return MaterialApp(
             title: 'SecureMoney - Personal Finance Manager',
             theme: ThemeData(
