@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:secure_money_management/services/lazy_initialization_service.dart';
 import '../main.dart' show HomeScreen;
@@ -53,31 +54,45 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _initializeApp() async {
     try {
-      // Step 1: Basic app initialization
-      _updateLoadingText('⚙️ Loading configuration...');
-      await Future.delayed(const Duration(milliseconds: 400));
-
-      // Step 2: Setting up features
-      _updateLoadingText('📱 Setting up features...');
-      await Future.delayed(const Duration(milliseconds: 400));
-
-      // Step 3: Final preparation
-      _updateLoadingText('🚀 Almost ready...');
-      await Future.delayed(const Duration(milliseconds: 600));
-
-      // Wait for animation to complete
-      await _animationController.forward();
+      // Add a timeout to prevent the splash screen from hanging indefinitely
+      await Future.any([
+        _performInitialization(),
+        Future.delayed(const Duration(seconds: 10), () {
+          throw TimeoutException('App initialization timed out', const Duration(seconds: 10));
+        }),
+      ]);
       
       if (mounted) {
         _navigateToHome();
       }
     } catch (e) {
       debugPrint('App initialization error: $e');
-      setState(() {
-        _hasError = true;
-        _loadingText = 'Oops! Something went wrong. Tap to retry.';
-      });
+      if (mounted) {
+        setState(() {
+          _hasError = true;
+          _loadingText = e is TimeoutException 
+            ? 'Loading is taking longer than expected. Tap to retry.'
+            : 'Oops! Something went wrong. Tap to retry.';
+        });
+      }
     }
+  }
+
+  Future<void> _performInitialization() async {
+    // Step 1: Basic app initialization
+    _updateLoadingText('⚙️ Loading configuration...');
+    await Future.delayed(const Duration(milliseconds: 400));
+
+    // Step 2: Setting up features
+    _updateLoadingText('📱 Setting up features...');
+    await Future.delayed(const Duration(milliseconds: 400));
+
+    // Step 3: Final preparation
+    _updateLoadingText('🚀 Almost ready...');
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    // Wait for animation to complete
+    await _animationController.forward();
   }
 
   void _updateLoadingText(String text) {

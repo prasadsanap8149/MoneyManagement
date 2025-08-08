@@ -9,15 +9,20 @@ import 'package:intl/intl.dart';
 import 'package:secure_money_management/utils/util_services.dart';
 import 'package:secure_money_management/models/transaction_model.dart';
 import 'package:secure_money_management/services/file_operations_service.dart';
+import 'package:secure_money_management/services/currency_service.dart';
 import 'package:secure_money_management/utils/user_experience_helper.dart';
 import 'package:secure_money_management/ad_service/widgets/interstitial_ad.dart';
 import 'package:secure_money_management/services/secure_transaction_service.dart';
+import 'package:secure_money_management/helper/constants.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RecentTransactions extends StatefulWidget {
+  final VoidCallback? onTransactionsUpdated; // Callback to notify the home screen
+
   const RecentTransactions({
     super.key,
+    this.onTransactionsUpdated,
   });
   @override
   State<RecentTransactions>  createState() => _RecentTransactionsState();
@@ -25,49 +30,30 @@ class RecentTransactions extends StatefulWidget {
 
 class _RecentTransactionsState extends State<RecentTransactions> {
   late List<TransactionModel> transactions = [];
+  late List<TransactionModel> filteredTransactions = [];
   final SecureTransactionService _secureStorage = SecureTransactionService();
+  
+  // Search and filter controllers
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedTypeFilter = 'All';
+  String _selectedCategoryFilter = 'All';
+  String _selectedPaymentModeFilter = 'All';
+  DateTimeRange? _selectedDateRange;
+  bool _isSearching = false;
 
   @override
   void initState() {
     super.initState();
     _initializeSecureStorage();
+    _searchController.addListener(_performSearch);
     
     // Pre-load interstitial ad for import/export functionality
     _initializeInterstitialAds();
   }
 
-  /// Initialize secure storage and perform migration if needed
-  Future<void> _initializeSecureStorage() async {
-    try {
-      // Initialize the secure transaction service
-      await _secureStorage.initialize();
-      
-      // Attempt to migrate from plain text storage
-      final migrated = await _secureStorage.migrateFromPlainTextStorage();
-      if (migrated) {
-        debugPrint('Successfully migrated transactions to encrypted storage');
-      }
-      
-      // Load transactions after initialization/migration
-      await _checkInternetAndLoad();
-      
-    } catch (e) {
-      debugPrint('Error initializing secure storage: $e');
-      // Fallback to loading without migration
-      await _checkInternetAndLoad();
-    }
-  }
-
-  /// Initialize and pre-load interstitial ads for better user experience
-  void _initializeInterstitialAds() {
-    // Pre-load interstitial ad in background
-    Future.delayed(const Duration(seconds: 1), () {
-      InterstitialAdWidget.instance.loadAd();
-    });
-  }
-
   @override
   void dispose() {
+    _searchController.dispose();
     // Dispose of interstitial ads to free memory
     InterstitialAdWidget.instance.dispose();
     super.dispose();
@@ -179,11 +165,15 @@ class _RecentTransactionsState extends State<RecentTransactions> {
       return;
     }
     
-    // Show confirmation dialog
+    // Show confirmation dialog explaining the import behavior
     final confirmed = await UserExperienceHelper.showConfirmationDialog(
       context,
       title: 'Import Transactions',
-      message: 'This will replace your current transactions with imported data. Are you sure?',
+      message: 'This will import transactions from a JSON file and add them to your existing data.\n\n'
+               '• Only JSON files exported from SecureMoney are supported\n'
+               '• Duplicate transactions will be automatically skipped\n'
+               '• Your existing transactions will NOT be replaced\n\n'
+               'Do you want to continue?',
       confirmText: 'Import',
       cancelText: 'Cancel',
       confirmColor: Colors.blue,
@@ -199,33 +189,40 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     );
 
     try {
-      // Use FileOperationsService for import with permission handling
-      final jsonStr = await FileOperationsService().importFile(
-        context,
-        feature: 'import transactions',
-      );
+      // Use FileOperationsService for JSON import with file restriction
+      final jsonStr = await FileOperationsService().importTransactionJsonFile(context);
       
       if (jsonStr != null) {
         try {
-          // Use secure storage to restore transactions
-          await _secureStorage.restoreTransactions(jsonStr);
+          // Use secure storage to import and append transactions (not replace)
+          final newTransactionCount = await _secureStorage.importAndAppendTransactions(jsonStr);
 
           // Reload in app
           await _loadTransactions();
 
+          // Notify parent widget that transactions have been updated
+          if (widget.onTransactionsUpdated != null) {
+            widget.onTransactionsUpdated!();
+          }
+
           loadingSnackbar.close();
           
-          // Get transaction count for success message
-          final transactions = await _secureStorage.loadTransactions();
-          UserExperienceHelper.showSuccessSnackbar(
-            context,
-            'Transactions imported successfully! ${transactions.length} transactions loaded.',
-          );
+          if (newTransactionCount > 0) {
+            UserExperienceHelper.showSuccessSnackbar(
+              context,
+              'Successfully imported $newTransactionCount new transactions! (Duplicates were skipped)',
+            );
+          } else {
+            UserExperienceHelper.showInfoSnackbar(
+              context,
+              'No new transactions to import. All transactions from the file already exist.',
+            );
+          }
         } catch (e) {
           loadingSnackbar.close();
           UserExperienceHelper.showErrorSnackbar(
             context,
-            'Import failed: Invalid file format. Please ensure the file is a valid JSON export.',
+            'Import failed: Invalid transaction file format. Please ensure the file is a valid SecureMoney JSON export.',
           );
         }
       } else {
@@ -495,6 +492,120 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     }
   }
 
+  /// Initialize secure storage and perform migration if needed
+  Future<void> _initializeSecureStorage() async {
+    try {
+      // Initialize the secure transaction service
+      await _secureStorage.initialize();
+      
+      // Attempt to migrate from plain text storage
+      final migrated = await _secureStorage.migrateFromPlainTextStorage();
+      if (migrated) {
+        debugPrint('Successfully migrated transactions to encrypted storage');
+      }
+      
+      // Load transactions after initialization/migration
+      await _checkInternetAndLoad();
+      
+    } catch (e) {
+      debugPrint('Error initializing secure storage: $e');
+      // Fallback to loading without migration
+      await _checkInternetAndLoad();
+    }
+  }
+
+  /// Initialize and pre-load interstitial ads for better user experience
+  void _initializeInterstitialAds() {
+    // Pre-load interstitial ad in background
+    Future.delayed(const Duration(seconds: 1), () {
+      InterstitialAdWidget.instance.loadAd();
+    });
+  }
+
+  // Search and filter methods
+  void _performSearch() {
+    final query = _searchController.text.toLowerCase();
+    
+    setState(() {
+      if (query.isEmpty) {
+        filteredTransactions = [];
+      } else {
+        filteredTransactions = transactions.where((transaction) {
+          final category = transaction.category == 'Other' 
+              ? (transaction.customCategory ?? '').toLowerCase()
+              : transaction.category.toLowerCase();
+          final amount = transaction.amount.toString();
+          final date = DateFormat('MMM dd yyyy').format(transaction.date).toLowerCase();
+          final paymentMode = (transaction.paymentMode ?? '').toLowerCase();
+          
+          return category.contains(query) ||
+                 amount.contains(query) ||
+                 date.contains(query) ||
+                 paymentMode.contains(query);
+        }).toList();
+      }
+    });
+    
+    _applyFilters();
+  }
+
+  void _applyFilters() {
+    final baseList = _searchController.text.isEmpty ? transactions : filteredTransactions;
+    
+    setState(() {
+      filteredTransactions = baseList.where((transaction) {
+        // Type filter
+        if (_selectedTypeFilter != 'All' && transaction.type != _selectedTypeFilter) {
+          return false;
+        }
+        
+        // Category filter
+        if (_selectedCategoryFilter != 'All') {
+          final transactionCategory = transaction.category == 'Other' 
+              ? transaction.customCategory ?? ''
+              : transaction.category;
+          if (transactionCategory != _selectedCategoryFilter) {
+            return false;
+          }
+        }
+        
+        // Payment mode filter
+        if (_selectedPaymentModeFilter != 'All') {
+          if (transaction.paymentMode != _selectedPaymentModeFilter) {
+            return false;
+          }
+        }
+        
+        // Date range filter
+        if (_selectedDateRange != null) {
+          if (transaction.date.isBefore(_selectedDateRange!.start) ||
+              transaction.date.isAfter(_selectedDateRange!.end)) {
+            return false;
+          }
+        }
+        
+        return true;
+      }).toList();
+    });
+  }
+
+  void _clearAllFilters() {
+    setState(() {
+      _selectedTypeFilter = 'All';
+      _selectedCategoryFilter = 'All';
+      _selectedPaymentModeFilter = 'All';
+      _selectedDateRange = null;
+    });
+    _performSearch(); // Reapply search without filters
+  }
+
+  bool _hasActiveFilters() {
+    return _selectedTypeFilter != 'All' ||
+           _selectedCategoryFilter != 'All' ||
+           _selectedPaymentModeFilter != 'All' ||
+           _selectedDateRange != null;
+  }
+
   // Load transactions from secure storage
   Future<void> _loadTransactions() async {
     try {
@@ -527,6 +638,11 @@ class _RecentTransactionsState extends State<RecentTransactions> {
         setState(() {
           transactions = legacyTransactions;
         });
+        
+        // Notify parent widget that transactions have been updated
+        if (widget.onTransactionsUpdated != null) {
+          widget.onTransactionsUpdated!();
+        }
         
         debugPrint('Successfully migrated ${legacyTransactions.length} transactions from legacy storage');
       }

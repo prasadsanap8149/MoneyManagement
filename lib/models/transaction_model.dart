@@ -6,6 +6,7 @@ class TransactionModel {
   DateTime date;
   String category; // Added category field
   String? customCategory; // Added category field
+  String? paymentMode; // Added payment mode field
 
   TransactionModel({
     this.id,
@@ -13,7 +14,8 @@ class TransactionModel {
     required this.type,
     required this.date,
     required this.category, // Make category required
-    this.customCategory
+    this.customCategory,
+    this.paymentMode, // Optional payment mode
   });
 
   // Convert a TransactionModel object to a JSON-compatible map
@@ -23,7 +25,8 @@ class TransactionModel {
     'type': type,
     'date': date.toIso8601String(), // Convert DateTime to string
     'category': category, // Include category
-    'cCategory':customCategory
+    'cCategory':customCategory,
+    'paymentMode': paymentMode, // Include payment mode
   };
 
   // Create a TransactionModel object from a JSON map
@@ -34,5 +37,6 @@ class TransactionModel {
     date: DateTime.parse(json['date']), // Parse string back to DateTime
     category: json['category'], // Parse category
     customCategory: json['cCategory'],
+    paymentMode: json['paymentMode'], // Parse payment mode
   );
 }

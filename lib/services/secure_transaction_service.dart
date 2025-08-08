@@ -204,6 +204,34 @@ class SecureTransactionService {
     }
   }
 
+  /// Import and append transactions from JSON backup (doesn't replace existing data)
+  Future<int> importAndAppendTransactions(String jsonData) async {
+    try {
+      final List<dynamic> transactionMaps = json.decode(jsonData);
+      final importedTransactions = transactionMaps.map((map) => TransactionModel.fromJson(map)).toList();
+      
+      // Load existing transactions
+      final existingTransactions = await loadTransactions();
+      
+      // Create a set of existing transaction IDs for duplicate detection
+      final existingIds = existingTransactions.map((t) => t.id).toSet();
+      
+      // Filter out duplicates from imported transactions
+      final newTransactions = importedTransactions.where((t) => !existingIds.contains(t.id)).toList();
+      
+      // Combine existing and new transactions
+      final allTransactions = [...existingTransactions, ...newTransactions];
+      
+      // Save combined transactions
+      await saveTransactions(allTransactions);
+      
+      return newTransactions.length; // Return number of new transactions added
+      
+    } catch (e) {
+      throw Exception('Failed to import transactions: $e');
+    }
+  }
+
   /// Verify data integrity
   Future<bool> verifyDataIntegrity() async {
     try {

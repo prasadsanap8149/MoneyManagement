@@ -36,88 +36,122 @@ class SecureConfig {
       _isInitialized = true;
     } catch (e) {
       if (kDebugMode) {
-        print('⚠️ Secure config initialization failed, using defaults: $e');
+        print('❌ Secure config initialization failed: $e');
       }
-      // Fall back to basic configuration
-      _initializeFallbackConfig();
-      _isInitialized = true;
+      // Re-throw the error instead of using fallback config
+      rethrow;
     }
   }
 
   /// Fallback configuration if initialization fails
   void _initializeFallbackConfig() {
-    // Use safe test IDs as fallback
-    _adMobAppId = Platform.isAndroid 
-        ? 'ca-app-pub-3940256099942544~3347511713'
-        : 'ca-app-pub-3940256099942544~1458002511';
-
-    _adMobBannerAdUnitId = Platform.isAndroid
-        ? 'ca-app-pub-3940256099942544/9214589741'
-        : 'ca-app-pub-3940256099942544/2435281174';
-
-    _adMobInterstitialAdUnitId = Platform.isAndroid
-        ? 'ca-app-pub-3940256099942544/1033173712'
-        : 'ca-app-pub-3940256099942544/4411468910';
-
-    _adMobRewardedAdUnitId = Platform.isAndroid
-        ? 'ca-app-pub-3940256099942544/5224354917'
-        : 'ca-app-pub-3940256099942544/1712485313';
-
-    if (kDebugMode) {
-      print('🔧 Using fallback test configuration');
-    }
+    // No fallback - configuration must come from environment files only
+    throw StateError(
+      'AdMob configuration failed to initialize! '
+      'Please ensure your environment configuration files are properly set up:\n'
+      '- For debug builds: assets/config/.env.debug or .env.debug\n'
+      '- For production builds: .env.production with proper environment variables\n'
+      'No fallback testing IDs are provided for security reasons.'
+    );
   }
 
-  /// Debug/Test configuration - uses Google test ad units
+  /// Debug/Test configuration - reads only from environment files
   void _initializeDebugConfig() {
     final envLoader = EnvironmentLoader.instance;
     
-    // Google Test AdMob App IDs (safe for debug)
-    _adMobAppId = Platform.isAndroid 
-        ? envLoader.getConfigValueOrDefault('ADMOB_APP_ID_ANDROID', 'ca-app-pub-3940256099942544~3347511713')
-        : envLoader.getConfigValueOrDefault('ADMOB_APP_ID_IOS', 'ca-app-pub-3940256099942544~1458002511');
+    // AdMob IDs must come from environment files only
+    final androidAppId = envLoader.getConfigValue('ADMOB_APP_ID_ANDROID');
+    final iosAppId = envLoader.getConfigValue('ADMOB_APP_ID_IOS');
+    
+    if (androidAppId == null || iosAppId == null) {
+      throw StateError('AdMob App IDs not found in debug environment configuration');
+    }
+    
+    _adMobAppId = Platform.isAndroid ? androidAppId : iosAppId;
 
-    // Google Test Ad Unit IDs (safe for debug)
-    _adMobBannerAdUnitId = Platform.isAndroid
-        ? envLoader.getConfigValueOrDefault('ADMOB_BANNER_ID_ANDROID', 'ca-app-pub-3940256099942544/9214589741')
-        : envLoader.getConfigValueOrDefault('ADMOB_BANNER_ID_IOS', 'ca-app-pub-3940256099942544/2435281174');
+    // Banner Ad Unit IDs
+    final androidBannerId = envLoader.getConfigValue('ADMOB_BANNER_ID_ANDROID');
+    final iosBannerId = envLoader.getConfigValue('ADMOB_BANNER_ID_IOS');
+    
+    if (androidBannerId == null || iosBannerId == null) {
+      throw StateError('AdMob Banner IDs not found in debug environment configuration');
+    }
+    
+    _adMobBannerAdUnitId = Platform.isAndroid ? androidBannerId : iosBannerId;
 
-    _adMobInterstitialAdUnitId = Platform.isAndroid
-        ? envLoader.getConfigValueOrDefault('ADMOB_INTERSTITIAL_ID_ANDROID', 'ca-app-pub-3940256099942544/1033173712')
-        : envLoader.getConfigValueOrDefault('ADMOB_INTERSTITIAL_ID_IOS', 'ca-app-pub-3940256099942544/4411468910');
+    // Interstitial Ad Unit IDs
+    final androidInterstitialId = envLoader.getConfigValue('ADMOB_INTERSTITIAL_ID_ANDROID');
+    final iosInterstitialId = envLoader.getConfigValue('ADMOB_INTERSTITIAL_ID_IOS');
+    
+    if (androidInterstitialId == null || iosInterstitialId == null) {
+      throw StateError('AdMob Interstitial IDs not found in debug environment configuration');
+    }
+    
+    _adMobInterstitialAdUnitId = Platform.isAndroid ? androidInterstitialId : iosInterstitialId;
 
-    _adMobRewardedAdUnitId = Platform.isAndroid
-        ? envLoader.getConfigValueOrDefault('ADMOB_REWARDED_ID_ANDROID', 'ca-app-pub-3940256099942544/5224354917')
-        : envLoader.getConfigValueOrDefault('ADMOB_REWARDED_ID_IOS', 'ca-app-pub-3940256099942544/1712485313');
+    // Rewarded Ad Unit IDs  
+    final androidRewardedId = envLoader.getConfigValue('ADMOB_REWARDED_ID_ANDROID');
+    final iosRewardedId = envLoader.getConfigValue('ADMOB_REWARDED_ID_IOS');
+    
+    if (androidRewardedId == null || iosRewardedId == null) {
+      throw StateError('AdMob Rewarded IDs not found in debug environment configuration');
+    }
+    
+    _adMobRewardedAdUnitId = Platform.isAndroid ? androidRewardedId : iosRewardedId;
 
     if (kDebugMode) {
-      print('🔧 Debug Mode: Using Google Test AdMob IDs');
+      print('🔧 Debug Mode: AdMob IDs loaded from environment configuration only');
+      print('📱 Platform: ${Platform.operatingSystem}');
     }
   }
 
-  /// Production configuration - reads from secure environment
+  /// Production configuration - reads only from secure environment
   void _initializeReleaseConfig() {
     final envLoader = EnvironmentLoader.instance;
     
-    // Production AdMob IDs - loaded from environment variables or secure config
-    _adMobAppId = Platform.isAndroid
-        ? envLoader.getConfigValueOrDefault('ADMOB_APP_ID_ANDROID', 'ca-app-pub-8068332503400690~1411312338')
-        : envLoader.getConfigValueOrDefault('ADMOB_APP_ID_IOS', 'ca-app-pub-8068332503400690~1411312338');
+    // Production AdMob IDs must come from environment variables only
+    final androidAppId = envLoader.getConfigValue('ADMOB_APP_ID_ANDROID');
+    final iosAppId = envLoader.getConfigValue('ADMOB_APP_ID_IOS');
     
-    _adMobBannerAdUnitId = Platform.isAndroid
-        ? envLoader.getConfigValueOrDefault('ADMOB_BANNER_ID_ANDROID', 'ca-app-pub-8068332503400690/XXXXXXXXXX')
-        : envLoader.getConfigValueOrDefault('ADMOB_BANNER_ID_IOS', 'ca-app-pub-8068332503400690/XXXXXXXXXX');
+    if (androidAppId == null || iosAppId == null) {
+      throw StateError('AdMob App IDs not found in production environment configuration');
+    }
     
-    _adMobInterstitialAdUnitId = Platform.isAndroid
-        ? envLoader.getConfigValueOrDefault('ADMOB_INTERSTITIAL_ID_ANDROID', 'ca-app-pub-8068332503400690/XXXXXXXXXX')
-        : envLoader.getConfigValueOrDefault('ADMOB_INTERSTITIAL_ID_IOS', 'ca-app-pub-8068332503400690/XXXXXXXXXX');
+    _adMobAppId = Platform.isAndroid ? androidAppId : iosAppId;
     
-    _adMobRewardedAdUnitId = Platform.isAndroid
-        ? envLoader.getConfigValueOrDefault('ADMOB_REWARDED_ID_ANDROID', 'ca-app-pub-8068332503400690/XXXXXXXXXX')
-        : envLoader.getConfigValueOrDefault('ADMOB_REWARDED_ID_IOS', 'ca-app-pub-8068332503400690/XXXXXXXXXX');
+    // Banner Ad Unit IDs
+    final androidBannerId = envLoader.getConfigValue('ADMOB_BANNER_ID_ANDROID');
+    final iosBannerId = envLoader.getConfigValue('ADMOB_BANNER_ID_IOS');
+    
+    if (androidBannerId == null || iosBannerId == null) {
+      throw StateError('AdMob Banner IDs not found in production environment configuration');
+    }
+    
+    _adMobBannerAdUnitId = Platform.isAndroid ? androidBannerId : iosBannerId;
+    
+    // Interstitial Ad Unit IDs
+    final androidInterstitialId = envLoader.getConfigValue('ADMOB_INTERSTITIAL_ID_ANDROID');
+    final iosInterstitialId = envLoader.getConfigValue('ADMOB_INTERSTITIAL_ID_IOS');
+    
+    if (androidInterstitialId == null || iosInterstitialId == null) {
+      throw StateError('AdMob Interstitial IDs not found in production environment configuration');
+    }
+    
+    _adMobInterstitialAdUnitId = Platform.isAndroid ? androidInterstitialId : iosInterstitialId;
+    
+    // Rewarded Ad Unit IDs
+    final androidRewardedId = envLoader.getConfigValue('ADMOB_REWARDED_ID_ANDROID');
+    final iosRewardedId = envLoader.getConfigValue('ADMOB_REWARDED_ID_IOS');
+    
+    if (androidRewardedId == null || iosRewardedId == null) {
+      throw StateError('AdMob Rewarded IDs not found in production environment configuration');
+    }
+    
+    _adMobRewardedAdUnitId = Platform.isAndroid ? androidRewardedId : iosRewardedId;
 
     if (kDebugMode) {
-      print('🚀 Release Mode: Using Production AdMob IDs');
+      print('🚀 Production Mode: AdMob IDs loaded from environment configuration only');
+      print('📱 Platform: ${Platform.operatingSystem}');
     }
   }
 

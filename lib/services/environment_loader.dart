@@ -84,37 +84,26 @@ class EnvironmentLoader {
     }
   }
 
-  /// Default debug configuration
+  /// Default debug configuration - removed to enforce environment file usage
   void _loadDefaultDebugConfig() {
-    _config = {
-      'ADMOB_APP_ID_ANDROID': 'ca-app-pub-3940256099942544~3347511713',
-      'ADMOB_APP_ID_IOS': 'ca-app-pub-3940256099942544~1458002511',
-      'ADMOB_BANNER_ID_ANDROID': 'ca-app-pub-3940256099942544/9214589741',
-      'ADMOB_BANNER_ID_IOS': 'ca-app-pub-3940256099942544/2435281174',
-      'ADMOB_INTERSTITIAL_ID_ANDROID': 'ca-app-pub-3940256099942544/1033173712',
-      'ADMOB_INTERSTITIAL_ID_IOS': 'ca-app-pub-3940256099942544/4411468910',
-      'ADMOB_REWARDED_ID_ANDROID': 'ca-app-pub-3940256099942544/5224354917',
-      'ADMOB_REWARDED_ID_IOS': 'ca-app-pub-3940256099942544/1712485313',
-      'BUILD_TYPE': 'debug',
-      'DEBUG_MODE': 'true',
-    };
+    throw StateError(
+      'Debug environment configuration not found! '
+      'Please ensure you have a proper debug configuration file:\n'
+      '- assets/config/.env.debug (bundled with app)\n'
+      '- or .env.debug in project root\n'
+      'No default fallback configuration is provided.'
+    );
   }
 
-  /// Default production configuration
+  /// Default production configuration - removed to enforce environment variable usage
   void _loadDefaultProductionConfig() {
-    _config = {
-      'ADMOB_APP_ID_ANDROID': 'ca-app-pub-8068332503400690~1411312338',
-      'ADMOB_APP_ID_IOS': 'ca-app-pub-8068332503400690~1411312338',
-      // Note: These should be replaced with actual production ad unit IDs
-      'ADMOB_BANNER_ID_ANDROID': 'ca-app-pub-8068332503400690/XXXXXXXXXX',
-      'ADMOB_BANNER_ID_IOS': 'ca-app-pub-8068332503400690/XXXXXXXXXX',
-      'ADMOB_INTERSTITIAL_ID_ANDROID': 'ca-app-pub-8068332503400690/XXXXXXXXXX',
-      'ADMOB_INTERSTITIAL_ID_IOS': 'ca-app-pub-8068332503400690/XXXXXXXXXX',
-      'ADMOB_REWARDED_ID_ANDROID': 'ca-app-pub-8068332503400690/XXXXXXXXXX',
-      'ADMOB_REWARDED_ID_IOS': 'ca-app-pub-8068332503400690/XXXXXXXXXX',
-      'BUILD_TYPE': 'release',
-      'DEBUG_MODE': 'false',
-    };
+    throw StateError(
+      'Production environment configuration not found! '
+      'Please ensure you have set proper environment variables or .env.production file:\n'
+      '- Environment variables (recommended for CI/CD)\n'
+      '- or .env.production file with actual AdMob IDs\n'
+      'No default fallback configuration is provided for security reasons.'
+    );
   }
 
   /// Fallback to basic default configuration

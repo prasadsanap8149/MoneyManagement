@@ -3,6 +3,18 @@ import '../models/transaction_model.dart';
 class Constants{
   static bool isMobileDevice = true;
   static final transactionType=['Income', 'Expense'];
+  
+  // Payment modes for transactions
+  static final paymentModes = <String>[
+    "Cash",
+    "UPI",
+    "Debit Card",
+    "Credit Card",
+    "Cheque",
+    "Net Banking",
+    "Other"
+  ];
+  
   // static final transactionCategory=['Select Category','Salary', 'Food', 'Rent','Glossary', 'Lunch Box', 'Travel','Petrol', 'Cloth', 'Party','Other'];
   static final transactionCategory = <String>[
     "Select Category",
@@ -44,8 +56,44 @@ class Constants{
     "Subscriptions",
     "Travel Expenses",
     "Tuition Fees",
-    "Utilities"
-
+    "Utilities",
+    "Books and Magazines",
+    "Business Expenses",
+    "Car Maintenance",
+    "Child Care",
+    "Commission",
+    "Credit Card Payments",
+    "Debt Payments",
+    "Electronics",
+    "Emergency Fund",
+    "Family Support",
+    "Fitness and Health",
+    "Food Delivery",
+    "Furniture",
+    "Gaming",
+    "Government Benefits",
+    "Home Decor",
+    "Investment Returns",
+    "Laundry and Dry Cleaning",
+    "Legal Fees",
+    "Loans",
+    "Mobile and Internet",
+    "Office Supplies",
+    "Parking",
+    "Pet Care",
+    "Photography",
+    "Professional Services",
+    "Repairs and Maintenance",
+    "Side Hustle",
+    "Software and Apps",
+    "Spa and Beauty",
+    "Streaming Services",
+    "Taxi and Rideshare",
+    "Tax Refunds",
+    "Tools and Equipment",
+    "Training and Courses",
+    "Vehicle Insurance",
+    "Veterinary Bills"
   ];
 
 
