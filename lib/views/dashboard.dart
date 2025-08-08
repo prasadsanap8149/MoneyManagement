@@ -66,107 +66,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (Constants.isMobileDevice) const GetBannerAd(),
-              const SizedBox(height: 5),
-              // Total Balance Card
-              Card(
-                elevation: 4,
-                color: Colors.green[100],
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Total Balance',
-                          style: TextStyle(fontSize: 18)),
-                      const SizedBox(height: 8),
-                      Text(
-                        currencyService.formatAmount(widget.totalBalance),
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green[700],
+      body: Column(
+        children: [
+          // Fixed top section (non-scrolling)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (Constants.isMobileDevice) const GetBannerAd(),
+                const SizedBox(height: 5),
+                // Total Balance Card
+                Card(
+                  elevation: 4,
+                  color: Colors.green[100],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Total Balance',
+                            style: TextStyle(fontSize: 18)),
+                        const SizedBox(height: 8),
+                        Text(
+                          currencyService.formatAmount(widget.totalBalance),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[700],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 5),
+                const SizedBox(height: 5),
 
-              // Income and Expense Summary
-              Row(
-                children: [
-                  Expanded(
-                    child: Card(
-                      color: Colors.green[200],
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Total Income'),
-                            const SizedBox(height: 8),
-                            Text(
-                              totalIncome > 0 
-                                ? currencyService.formatAmount(totalIncome)
-                                : currencyService.formatAmount(0),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green[900],
+                // Income and Expense Summary
+                Row(
+                  children: [
+                    Expanded(
+                      child: Card(
+                        color: Colors.green[200],
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Total Income'),
+                              const SizedBox(height: 8),
+                              Text(
+                                totalIncome > 0 
+                                  ? currencyService.formatAmount(totalIncome)
+                                  : currencyService.formatAmount(0),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green[900],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Card(
-                      color: Colors.red[200],
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Total Expenses'),
-                            const SizedBox(height: 8),
-                            Text(
-                              currencyService.formatAmount(totalExpenses),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red[900],
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Card(
+                        color: Colors.red[200],
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Total Expenses'),
+                              const SizedBox(height: 8),
+                              Text(
+                                currencyService.formatAmount(totalExpenses),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red[900],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 5),
-
-              // Recent Transactions Section with Month Separation
-              Card(
+                  ],
+                ),
+                const SizedBox(height: 5),
+              ],
+            ),
+          ),
+          
+          // Scrollable Recent Transactions Section
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Card(
                 elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
+                child: Column(
+                  children: [
+                    // Header (fixed)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
@@ -185,12 +192,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      widget.transactions.isEmpty
+                    ),
+                    // Scrollable content
+                    Expanded(
+                      child: widget.transactions.isEmpty
                           ? const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(32.0),
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
                                       Icons.receipt_long_outlined,
@@ -218,14 +228,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ),
                             )
-                          : _buildMonthSeparatedTransactions(),
-                    ],
-                  ),
+                          : _buildScrollableTransactions(),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
@@ -384,6 +395,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildScrollableTransactions() {
+    final currencyService = CurrencyService.instance;
+    
+    // Sort transactions by date (latest first)
+    final sortedTransactions = List<TransactionModel>.from(widget.transactions)
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    // Group transactions by month
+    final Map<String, List<TransactionModel>> groupedTransactions = {};
+    
+    for (final transaction in sortedTransactions) {
+      final monthKey = DateFormat('MMMM yyyy').format(transaction.date);
+      if (groupedTransactions[monthKey] == null) {
+        groupedTransactions[monthKey] = [];
+      }
+      groupedTransactions[monthKey]!.add(transaction);
+    }
+
+    // Show only recent transactions (last 15 transactions for better scrolling experience)
+    final recentTransactions = sortedTransactions.take(15).toList();
+    final Map<String, List<TransactionModel>> recentGrouped = {};
+    
+    for (final transaction in recentTransactions) {
+      final monthKey = DateFormat('MMMM yyyy').format(transaction.date);
+      if (recentGrouped[monthKey] == null) {
+        recentGrouped[monthKey] = [];
+      }
+      recentGrouped[monthKey]!.add(transaction);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: ListView.builder(
+        // Enable scrolling - remove shrinkWrap and NeverScrollableScrollPhysics
+        itemCount: recentGrouped.keys.length,
+        itemBuilder: (context, index) {
+          final monthKey = recentGrouped.keys.toList()[index];
+          final monthTransactions = recentGrouped[monthKey]!;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Month header
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  monthKey,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ),
+              // Transactions for this month
+              ...monthTransactions.map((transaction) => _buildTransactionTile(transaction, currencyService)),
+              if (index < recentGrouped.keys.length - 1) const Divider(),
+              // Add some bottom padding for the last item
+              if (index == recentGrouped.keys.length - 1) const SizedBox(height: 16),
+            ],
+          );
+        },
+      ),
     );
   }
 
