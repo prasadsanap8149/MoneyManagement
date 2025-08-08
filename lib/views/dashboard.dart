@@ -9,7 +9,6 @@ import 'package:secure_money_management/services/import_export_service.dart';
 import 'package:secure_money_management/services/connectivity_service.dart';
 import 'package:secure_money_management/views/country_selection_screen.dart';
 import 'package:secure_money_management/views/add_edit_transaction_form.dart';
-import 'package:secure_money_management/views/transactions_screen.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
@@ -413,160 +412,748 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  /// Show comprehensive app settings dialog
+  /// Show comprehensive app settings dialog with enhanced features
   Future<void> _showAppSettingsDialog(BuildContext context) async {
     await showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: const Row(
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Theme.of(context).colorScheme.surface,
+                  Theme.of(context).colorScheme.surface.withOpacity(0.95),
+                ],
+              ),
+            ),
+            child: DefaultTabController(
+              length: 4,
+              child: Column(
+                children: [
+                  // Header with close button
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.settings, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'App Settings',
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Customize your SecureMoney experience',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.grey.shade100,
+                            foregroundColor: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Tab Bar
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey.shade200),
+                      ),
+                    ),
+                    child: TabBar(
+                      labelColor: Theme.of(context).primaryColor,
+                      unselectedLabelColor: Colors.grey.shade600,
+                      indicatorColor: Theme.of(context).primaryColor,
+                      labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
+                      tabs: const [
+                        Tab(icon: Icon(Icons.palette, size: 20), text: 'Theme'),
+                        Tab(icon: Icon(Icons.language, size: 20), text: 'Region'),
+                        Tab(icon: Icon(Icons.storage, size: 20), text: 'Data'),
+                        Tab(icon: Icon(Icons.info, size: 20), text: 'About'),
+                      ],
+                    ),
+                  ),
+                  
+                  // Tab Views
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildThemeSettingsTab(context),
+                        _buildRegionSettingsTab(context),
+                        _buildDataManagementTab(context),
+                        _buildAboutTab(context),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Build Theme Settings Tab
+  Widget _buildThemeSettingsTab(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Icon(Icons.settings, color: Colors.blue),
-              SizedBox(width: 8),
-              Text('App Settings'),
+              Icon(Icons.palette, color: Theme.of(context).primaryColor, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Appearance',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
-          content: SingleChildScrollView(
+          const SizedBox(height: 8),
+          Text(
+            'Customize the look and feel of your app',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 24),
+          
+          // Theme Settings Widget
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: const ThemeSettingsWidget(),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Additional theme options
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Theme Settings Section
-                const ThemeSettingsWidget(),
-                const SizedBox(height: 16),
-                
-                // Country/Currency Settings Section
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.language, color: Theme.of(context).primaryColor),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Country & Currency',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text('Current: ${CurrencyService.instance.displayName}'),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Change currency symbol and formatting based on your country',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 12),
-                        TextButton.icon(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CountrySelectionScreen(),
-                              ),
-                            );
-                            if (result == true) {
-                              // Refresh the currency service to load new settings
-                              await CurrencyService.instance.refreshSettings();
-                              // Refresh the dashboard to show new currency
-                              setState(() {}); // Force rebuild to show new currency
-                              widget.onTransactionsUpdated();
-                            }
-                          },
-                          icon: const Icon(Icons.edit),
-                          label: const Text('Change Country'),
-                        ),
-                      ],
+                Row(
+                  children: [
+                    Icon(Icons.color_lens, color: Theme.of(context).primaryColor, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Color Scheme',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'SecureMoney uses a green color scheme for financial positivity and trust.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
                   ),
                 ),
-                
-                const SizedBox(height: 16),
-                
-                // File Operations Info
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.file_copy, color: Theme.of(context).primaryColor),
-                            const SizedBox(width: 8),
-                            Text(
-                              'File Operations',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        const Text('✓ Export data as CSV, PDF, Excel, JSON'),
-                        const Text('✓ Import transaction data from files'),
-                        const Text('✓ Share reports with other apps'),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Uses Storage Access Framework (no permissions required on Android 11+)',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 12),
-                        TextButton.icon(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await FileOperationsService().showFileOperationsInfo(context);
-                          },
-                          icon: const Icon(Icons.info_outline),
-                          label: const Text('More Info'),
-                        ),
-                      ],
-                    ),
-                  ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _buildColorSwatch(Colors.green, 'Current'),
+                    const SizedBox(width: 12),
+                    _buildColorSwatch(Colors.blue, 'Coming Soon'),
+                    const SizedBox(width: 12),
+                    _buildColorSwatch(Colors.purple, 'Coming Soon'),
+                  ],
                 ),
-                
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build Color Swatch Widget
+  Widget _buildColorSwatch(Color color, String label) {
+    return Column(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300, width: 2),
+          ),
+          child: color == Colors.green 
+            ? const Icon(Icons.check, color: Colors.white, size: 20)
+            : null,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey.shade600,
+            fontWeight: color == Colors.green ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Build Region Settings Tab
+  Widget _buildRegionSettingsTab(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.language, color: Theme.of(context).primaryColor, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Region & Currency',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Set your location and currency preferences',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 24),
+          
+          // Current Settings Display
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).primaryColor.withOpacity(0.1),
+                  Theme.of(context).primaryColor.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.location_on, color: Theme.of(context).primaryColor, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Current Settings',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildSettingRow('Country/Region', CurrencyService.instance.displayName),
+                const SizedBox(height: 8),
+                _buildSettingRow('Currency Symbol', CurrencyService.instance.symbol),
+                const SizedBox(height: 8),
+                _buildSettingRow('Format Example', CurrencyService.instance.formatAmount(1234.56)),
                 const SizedBox(height: 16),
-                
-                // App Information
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.info, color: Theme.of(context).primaryColor),
-                            const SizedBox(width: 8),
-                            Text(
-                              'About SecureMoney',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CountrySelectionScreen(),
                         ),
-                        const SizedBox(height: 12),
-                        const Text('✓ End-to-end encryption for all data'),
-                        const Text('✓ Local storage (no cloud dependency)'),
-                        const Text('✓ Privacy-focused design'),
-                        const Text('✓ Modern Android compatibility'),
-                      ],
+                      );
+                      if (result == true) {
+                        await CurrencyService.instance.refreshSettings();
+                        setState(() {});
+                        widget.onTransactionsUpdated();
+                      }
+                    },
+                    icon: const Icon(Icons.edit, size: 18),
+                    label: const Text('Change Country/Currency'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+          
+          const SizedBox(height: 24),
+          
+          // Additional Info
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue.shade200),
             ),
-          ],
-        );
-      },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.blue.shade700, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Currency Information',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '• Currency affects how amounts are displayed\n'
+                  '• Existing transactions keep their values\n'
+                  '• Change anytime without data loss\n'
+                  '• Supports 190+ countries and currencies',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.blue.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build Data Management Tab
+  Widget _buildDataManagementTab(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.storage, color: Theme.of(context).primaryColor, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Data Management',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Manage your transaction data and security',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 24),
+          
+          // Data Statistics
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.green.shade50,
+                  Colors.green.shade25,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.green.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.analytics, color: Colors.green.shade700, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Data Overview',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(child: _buildStatCard('Total Transactions', '${widget.transactions.length}', Icons.receipt_long)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildStatCard('Storage Used', '< 1 MB', Icons.storage)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(child: _buildStatCard('Encrypted', '100%', Icons.security)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildStatCard('Local Only', 'Yes', Icons.device_hub)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Quick Actions
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.build, color: Theme.of(context).primaryColor, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Quick Actions',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildActionTile(
+                  icon: Icons.file_upload,
+                  title: 'Export All Data',
+                  subtitle: 'Create backup of all transactions',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _importExportService.showExportDialog(context, widget.transactions);
+                  },
+                ),
+                _buildActionTile(
+                  icon: Icons.file_download,
+                  title: 'Import Data',
+                  subtitle: 'Restore from backup file',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _importExportService.importFromJson(context, widget.onTransactionsUpdated);
+                  },
+                ),
+                _buildActionTile(
+                  icon: Icons.info_outline,
+                  title: 'File Operations Info',
+                  subtitle: 'Learn about import/export features',
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await FileOperationsService().showFileOperationsInfo(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build About Tab
+  Widget _buildAboutTab(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.info, color: Theme.of(context).primaryColor, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'About SecureMoney',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Privacy-focused personal finance manager',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 24),
+          
+          // App Info
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).primaryColor.withOpacity(0.1),
+                  Theme.of(context).primaryColor.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.2)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 32),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'SecureMoney',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Version 1.0.1+3',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Features
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.star, color: Colors.amber.shade600, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Key Features',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildFeatureTile(Icons.security, 'End-to-end encryption'),
+                _buildFeatureTile(Icons.offline_pin, 'Local storage only'),
+                _buildFeatureTile(Icons.privacy_tip, 'Privacy-focused design'),
+                _buildFeatureTile(Icons.phone_android, 'Modern Android compatibility'),
+                _buildFeatureTile(Icons.import_export, 'Import/Export capabilities'),
+                _buildFeatureTile(Icons.dark_mode, 'Dark theme support'),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 20),
+          
+          // Copyright
+          Center(
+            child: Text(
+              '© 2025 SecureMoney. All rights reserved.',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Helper Methods for Building UI Components
+  
+  Widget _buildSettingRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.shade100),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: Colors.green.shade600, size: 20),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.green.shade700,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.grey.shade600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: Theme.of(context).primaryColor, size: 20),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey.shade600,
+        ),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
+
+  Widget _buildFeatureTile(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Theme.of(context).primaryColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -660,17 +1247,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: TextButton.icon(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TransactionScreen(
-                        onTransactionsUpdated: widget.onTransactionsUpdated,
-                      ),
-                    ),
-                  );
+                  Navigator.of(context).pushNamed('/transactions');
                 },
                 icon: const Icon(Icons.list_alt, size: 16),
-                label: const Text('View in Full Screen'),
+                label: const Text('Open Transactions Screen'),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.grey.shade600,
                 ),
