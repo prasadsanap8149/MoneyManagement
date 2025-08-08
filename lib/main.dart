@@ -19,6 +19,12 @@ import 'models/transaction_model.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Lock orientation to portrait only to prevent overflow issues
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  
   // Configure system UI for edge-to-edge display using modern APIs
   SystemUIService.instance.resetToEdgeToEdge();
   
