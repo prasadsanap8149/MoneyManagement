@@ -15,12 +15,14 @@ class DashboardScreen extends StatefulWidget {
   final List<TransactionModel> transactions; // Add a transactions parameter
   final double totalBalance;
   final Future<void> Function() onTransactionsUpdated;
+  final Future<void> Function(TransactionModel) onSaveTransaction;
 
   const DashboardScreen({
     super.key,
     required this.transactions,
     required this.totalBalance,
     required this.onTransactionsUpdated,
+    required this.onSaveTransaction,
   });
 
   @override
@@ -286,7 +288,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                             );
                             if (result == true) {
+                              // Refresh the currency service to load new settings
+                              await CurrencyService.instance.refreshSettings();
                               // Refresh the dashboard to show new currency
+                              setState(() {}); // Force rebuild to show new currency
                               widget.onTransactionsUpdated();
                             }
                           },
@@ -517,8 +522,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
         MaterialPageRoute(
           builder: (context) => AddEditTransactionScreen(
             onSave: (TransactionModel transaction) async {
-              // Save the transaction and refresh the dashboard
-              await widget.onTransactionsUpdated();
+              try {
+                // Save the transaction using the provided callback
+                await widget.onSaveTransaction(transaction);
+                
+                // Show success message
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Transaction added successfully!'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              } catch (e) {
+                // Show error message
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to save transaction. Please try again.'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              }
             },
           ),
         ),
