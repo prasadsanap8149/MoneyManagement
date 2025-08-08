@@ -9,6 +9,7 @@ import 'package:secure_money_management/services/import_export_service.dart';
 import 'package:secure_money_management/services/connectivity_service.dart';
 import 'package:secure_money_management/views/country_selection_screen.dart';
 import 'package:secure_money_management/views/add_edit_transaction_form.dart';
+import 'package:secure_money_management/views/transactions_screen.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
@@ -707,7 +708,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 12),
                 _buildSettingRow('Country/Region', CurrencyService.instance.displayName),
                 const SizedBox(height: 8),
-                _buildSettingRow('Currency Symbol', CurrencyService.instance.symbol),
+                _buildSettingRow('Currency Symbol', CurrencyService.instance.currencySymbol),
                 const SizedBox(height: 8),
                 _buildSettingRow('Format Example', CurrencyService.instance.formatAmount(1234.56)),
                 const SizedBox(height: 16),
@@ -822,7 +823,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               gradient: LinearGradient(
                 colors: [
                   Colors.green.shade50,
-                  Colors.green.shade25,
+                  Colors.green.shade100,
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
@@ -1247,7 +1248,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: TextButton.icon(
                 onPressed: () {
-                  Navigator.of(context).pushNamed('/transactions');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TransactionScreen(
+                        transactions: widget.transactions,
+                        onTransactionsUpdated: widget.onTransactionsUpdated,
+                      ),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.list_alt, size: 16),
                 label: const Text('Open Transactions Screen'),
