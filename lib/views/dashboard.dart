@@ -5,6 +5,8 @@ import 'package:secure_money_management/utils/util_services.dart';
 import 'package:secure_money_management/widgets/theme_settings_widget.dart';
 import 'package:secure_money_management/services/file_operations_service.dart';
 import 'package:secure_money_management/services/currency_service.dart';
+import 'package:secure_money_management/services/import_export_service.dart';
+import 'package:secure_money_management/services/connectivity_service.dart';
 import 'package:secure_money_management/views/country_selection_screen.dart';
 import 'package:secure_money_management/views/add_edit_transaction_form.dart';
 
@@ -30,9 +32,22 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final ImportExportService _importExportService = ImportExportService();
+  final ConnectivityService _connectivityService = ConnectivityService();
+
   @override
   void initState() {
     super.initState();
+    // Initialize services
+    _importExportService.initialize();
+    _connectivityService.initialize();
+  }
+
+  @override
+  void dispose() {
+    _importExportService.dispose();
+    _connectivityService.dispose();
+    super.dispose();
   }
 
   @override
@@ -158,6 +173,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 5),
+                
+                // Import/Export Quick Actions
+                _buildImportExportSection(),
+                
+                const SizedBox(height: 5),
               ],
             ),
           ),
@@ -237,6 +257,116 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 16),
         ],
+      ),
+    );
+  }
+
+  /// Build import/export section with quick actions
+  Widget _buildImportExportSection() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.import_export, color: Theme.of(context).primaryColor),
+                const SizedBox(width: 8),
+                Text(
+                  'Import & Export',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                // Connection status indicator
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: _connectivityService.isConnected 
+                          ? Colors.green 
+                          : Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _connectivityService.connectionTypeString,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Securely backup and restore your transactions',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _importExportService.importFromJson(
+                      context,
+                      () {
+                        // Refresh dashboard after import
+                        widget.onTransactionsUpdated();
+                      },
+                    ),
+                    icon: const Icon(Icons.file_download, size: 18),
+                    label: const Text('Import'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _importExportService.showExportDialog(
+                      context,
+                      widget.transactions,
+                    ),
+                    icon: const Icon(Icons.file_upload, size: 18),
+                    label: const Text('Export'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.security, size: 12, color: Colors.grey.shade600),
+                const SizedBox(width: 4),
+                Text(
+                  'Internet required • Ad supported',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
