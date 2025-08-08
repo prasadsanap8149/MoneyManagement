@@ -430,99 +430,120 @@ class _TransactionScreenState extends State<TransactionScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Icon(iconData, color: iconColor, size: 24),
-        ),
-        title: Text(
-          displayCategory,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           children: [
-            const SizedBox(height: 4),
+            // Main row with icon, title, and amount
             Row(
               children: [
-                Icon(Icons.calendar_today,
-                    size: 14, color: Colors.grey.shade600),
-                const SizedBox(width: 4),
-                Text(
-                  DateFormat('MMM dd, yyyy').format(txn.date),
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-                if (txn.paymentMode != null) ...[
-                  const SizedBox(width: 12),
-                  Icon(Icons.payment, size: 14, color: Colors.grey.shade600),
-                  const SizedBox(width: 4),
-                  Text(
-                    txn.paymentMode!,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                // Leading icon
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(25),
                   ),
-                ],
+                  child: Icon(iconData, color: iconColor, size: 24),
+                ),
+                const SizedBox(width: 16),
+                // Title and details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayCategory,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.calendar_today,
+                                  size: 14, color: Colors.grey.shade600),
+                              const SizedBox(width: 4),
+                              Text(
+                                DateFormat('MMM dd, yyyy').format(txn.date),
+                                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
+                          if (txn.paymentMode != null) ...[
+                            const SizedBox(width: 12),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.payment, size: 14, color: Colors.grey.shade600),
+                                const SizedBox(width: 4),
+                                Text(
+                                  txn.paymentMode!,
+                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: iconColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          txn.type,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: iconColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Amount
+                Text(
+                  currencyService.formatAmount(txn.amount),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: iconColor,
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 2),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                txn.type,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: iconColor,
-                ),
-              ),
-            ),
-          ],
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              currencyService.formatAmount(txn.amount),
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: iconColor,
-              ),
-            ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 12),
+            // Action buttons row
             Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 20),
-                  color: Colors.blue,
+                TextButton.icon(
                   onPressed: () => _editTransaction(context, txn),
-                  tooltip: 'Edit Transaction',
-                  constraints:
-                      const BoxConstraints(minWidth: 32, minHeight: 32),
-                  padding: EdgeInsets.zero,
+                  icon: const Icon(Icons.edit, size: 18),
+                  label: const Text('Edit'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, size: 20),
-                  color: Colors.red,
+                const SizedBox(width: 8),
+                TextButton.icon(
                   onPressed: () => _deleteTransaction(txn.id!),
-                  tooltip: 'Delete Transaction',
-                  constraints:
-                      const BoxConstraints(minWidth: 32, minHeight: 32),
-                  padding: EdgeInsets.zero,
+                  icon: const Icon(Icons.delete, size: 18),
+                  label: const Text('Delete'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                 ),
               ],
             ),
