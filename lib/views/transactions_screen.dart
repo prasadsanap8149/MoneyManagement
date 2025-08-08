@@ -427,11 +427,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
     Color iconColor = txn.type == 'Expense' ? Colors.red : Colors.green;
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(5),
         child: Column(
           children: [
             // Main row with icon, title, and amount
@@ -471,7 +471,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 DateFormat('MMM dd, yyyy').format(txn.date),
-                                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.grey.shade600),
                               ),
                             ],
                           ),
@@ -480,11 +481,14 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.payment, size: 14, color: Colors.grey.shade600),
+                                Icon(Icons.payment,
+                                    size: 14, color: Colors.grey.shade600),
                                 const SizedBox(width: 4),
                                 Text(
                                   txn.paymentMode!,
-                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600),
                                 ),
                               ],
                             ),
@@ -493,7 +497,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: iconColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
@@ -521,7 +526,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
             // Action buttons row
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -532,7 +536,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   label: const Text('Edit'),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -542,7 +547,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   label: const Text('Delete'),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
                   ),
                 ),
               ],
@@ -589,8 +595,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
         children: [
           Row(
             children: [
-              const Text('Active Filters:',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+              const Text(
+                'Active Filters:',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+              ),
               const Spacer(),
               TextButton(
                 onPressed: _clearAllFilters,
