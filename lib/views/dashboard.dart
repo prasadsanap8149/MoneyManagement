@@ -34,6 +34,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final ImportExportService _importExportService = ImportExportService();
   final ConnectivityService _connectivityService = ConnectivityService();
+  bool _isTransactionListExpanded = false;
 
   @override
   void initState() {
@@ -196,59 +197,99 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Recent Transactions',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              const Text(
+                                'Recent Transactions',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (!_isTransactionListExpanded && widget.transactions.length > 5)
+                                Container(
+                                  margin: const EdgeInsets.only(left: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    '${widget.transactions.length}',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                          TextButton(
+                          TextButton.icon(
                             onPressed: () {
-                              // Navigate to transactions screen
-                              Navigator.of(context).pushNamed('/transactions');
+                              setState(() {
+                                _isTransactionListExpanded = !_isTransactionListExpanded;
+                              });
                             },
-                            child: const Text('View All'),
+                            icon: AnimatedRotation(
+                              turns: _isTransactionListExpanded ? 0.5 : 0,
+                              duration: const Duration(milliseconds: 300),
+                              child: const Icon(
+                                Icons.expand_more,
+                                size: 18,
+                              ),
+                            ),
+                            label: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Text(
+                                _isTransactionListExpanded ? 'Show Less' : 'View All',
+                                key: ValueKey(_isTransactionListExpanded),
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    // Scrollable content
+                    // Scrollable content with animation
                     Expanded(
-                      child: widget.transactions.isEmpty
-                          ? const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(32.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.receipt_long_outlined,
-                                      size: 48,
-                                      color: Colors.grey,
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'No transactions yet',
-                                      style: TextStyle(
-                                        fontSize: 16,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: widget.transactions.isEmpty
+                            ? const Center(
+                                key: ValueKey('empty'),
+                                child: Padding(
+                                  padding: EdgeInsets.all(32.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.receipt_long_outlined,
+                                        size: 48,
                                         color: Colors.grey,
                                       ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'Tap the + button to add your first transaction',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'No transactions yet',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                        ),
                                       ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Tap the + button to add your first transaction',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            )
-                          : _buildScrollableTransactions(),
+                              )
+                            : _buildScrollableTransactions(key: ValueKey(_isTransactionListExpanded)),
+                      ),
                     ),
                   ],
                 ),
@@ -528,7 +569,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildScrollableTransactions() {
+  Widget _buildScrollableTransactions({Key? key}) {
     final currencyService = CurrencyService.instance;
     
     // Sort transactions by date (latest first)
@@ -546,50 +587,88 @@ class _DashboardScreenState extends State<DashboardScreen> {
       groupedTransactions[monthKey]!.add(transaction);
     }
 
-    // Show only recent transactions (last 15 transactions for better scrolling experience)
-    final recentTransactions = sortedTransactions.take(15).toList();
-    final Map<String, List<TransactionModel>> recentGrouped = {};
+    // Determine which transactions to show based on expand/collapse state
+    final transactionsToShow = _isTransactionListExpanded 
+        ? sortedTransactions // Show all transactions when expanded
+        : sortedTransactions.take(5).toList(); // Show only first 5 when collapsed
     
-    for (final transaction in recentTransactions) {
+    final Map<String, List<TransactionModel>> displayGrouped = {};
+    
+    for (final transaction in transactionsToShow) {
       final monthKey = DateFormat('MMMM yyyy').format(transaction.date);
-      if (recentGrouped[monthKey] == null) {
-        recentGrouped[monthKey] = [];
+      if (displayGrouped[monthKey] == null) {
+        displayGrouped[monthKey] = [];
       }
-      recentGrouped[monthKey]!.add(transaction);
+      displayGrouped[monthKey]!.add(transaction);
     }
 
     return Padding(
+      key: key,
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: ListView.builder(
-        // Enable scrolling - remove shrinkWrap and NeverScrollableScrollPhysics
-        itemCount: recentGrouped.keys.length,
-        itemBuilder: (context, index) {
-          final monthKey = recentGrouped.keys.toList()[index];
-          final monthTransactions = recentGrouped[monthKey]!;
+      child: Column(
+        children: [
+          // Transaction list
+          Expanded(
+            child: ListView.builder(
+              itemCount: displayGrouped.keys.length,
+              itemBuilder: (context, index) {
+                final monthKey = displayGrouped.keys.toList()[index];
+                final monthTransactions = displayGrouped[monthKey]!;
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Month header
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  monthKey,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade700,
-                  ),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Month header
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        monthKey,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                    // Transactions for this month
+                    ...monthTransactions.map((transaction) => _buildTransactionTile(transaction, currencyService)),
+                    if (index < displayGrouped.keys.length - 1) const Divider(),
+                    // Add some bottom padding for the last item
+                    if (index == displayGrouped.keys.length - 1) const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
+          ),
+          // Show indicator if there are more transactions
+          if (!_isTransactionListExpanded && sortedTransactions.length > 5)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                '+${sortedTransactions.length - 5} more transactions',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
-              // Transactions for this month
-              ...monthTransactions.map((transaction) => _buildTransactionTile(transaction, currencyService)),
-              if (index < recentGrouped.keys.length - 1) const Divider(),
-              // Add some bottom padding for the last item
-              if (index == recentGrouped.keys.length - 1) const SizedBox(height: 16),
-            ],
-          );
-        },
+            ),
+          // Navigation to full transactions screen
+          if (_isTransactionListExpanded)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/transactions');
+                },
+                icon: const Icon(Icons.list_alt, size: 16),
+                label: const Text('Open Transactions Screen'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey.shade600,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
