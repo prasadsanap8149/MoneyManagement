@@ -353,6 +353,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           transactions: _transactions,
           totalBalance: _totalBalance,
           onTransactionsUpdated: _loadTransactions,
+          onSaveTransaction: _saveTransaction,
         );
       case 1:
         return TransactionScreen(
@@ -363,7 +364,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       case 2:
         return ReportsScreen(transactions: _transactions);
       default:
-        return DashboardScreen(transactions: _transactions, totalBalance: _totalBalance, onTransactionsUpdated: _loadTransactions);
+        return DashboardScreen(
+          transactions: _transactions, 
+          totalBalance: _totalBalance, 
+          onTransactionsUpdated: _loadTransactions,
+          onSaveTransaction: _saveTransaction,
+        );
     }
   }
 
@@ -421,6 +427,35 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           _transactions = [];
         });
       }
+    }
+  }
+
+  // Save a new or updated transaction
+  Future<void> _saveTransaction(TransactionModel newTransaction) async {
+    try {
+      setState(() {
+        if (newTransaction.id == null) {
+          // New transaction
+          newTransaction.id = DateTime.now().toString(); // Use timestamp as ID
+          _transactions.add(newTransaction);
+        } else {
+          // Update existing transaction
+          int index = _transactions.indexWhere((txn) => txn.id == newTransaction.id);
+          if (index != -1) {
+            _transactions[index] = newTransaction;
+          }
+        }
+      });
+
+      // Save to secure storage
+      await _secureStorage.saveTransactions(_transactions);
+      
+      // Recalculate balance
+      _calculateBalance();
+      
+    } catch (e) {
+      debugPrint('Error saving transaction: $e');
+      rethrow;
     }
   }
 
