@@ -60,6 +60,17 @@ class LazyInitializationService {
     }
   }
 
+  /// Clear any cached data to free up memory
+  void clearCaches() {
+    if (kDebugMode) {
+      print('🧹 Clearing caches to free up memory');
+    }
+    
+    // Here we could clear any cached data
+    // For now, just log the action
+    // In the future, this could clear image caches, temporary data, etc.
+  }
+
   /// Check if ads are initialized
   bool get adsInitialized => _adsInitialized;
 
