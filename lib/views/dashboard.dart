@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:secure_money_management/helper/constants.dart';
-import 'package:secure_money_management/utils/util_services.dart';
-import 'package:secure_money_management/widgets/theme_settings_widget.dart';
-import 'package:secure_money_management/services/file_operations_service.dart';
-import 'package:secure_money_management/services/currency_service.dart';
-import 'package:secure_money_management/services/import_export_service.dart';
 import 'package:secure_money_management/services/connectivity_service.dart';
-import 'package:secure_money_management/views/country_selection_screen.dart';
+import 'package:secure_money_management/services/currency_service.dart';
+import 'package:secure_money_management/services/file_operations_service.dart';
+import 'package:secure_money_management/services/import_export_service.dart';
+import 'package:secure_money_management/utils/util_services.dart';
 import 'package:secure_money_management/views/add_edit_transaction_form.dart';
+import 'package:secure_money_management/views/country_selection_screen.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
+import 'package:secure_money_management/widgets/theme_settings_widget.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
@@ -64,7 +64,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         widget.transactions, Constants.transactionType[1]);
 
     // Debug prints (can be removed in production)
-    debugPrint('Dashboard - Transactions: ${widget.transactions.length}, Income: $totalIncome, Expenses: $totalExpenses');
+    debugPrint(
+        'Dashboard - Transactions: ${widget.transactions.length}, Income: $totalIncome, Expenses: $totalExpenses');
 
     return Scaffold(
       appBar: AppBar(
@@ -207,12 +208,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              if (!_isTransactionListExpanded && widget.transactions.length > 5)
+                              if (!_isTransactionListExpanded &&
+                                  widget.transactions.length > 5)
                                 Container(
                                   margin: const EdgeInsets.only(left: 8),
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                    color: Theme.of(context)
+                                        .primaryColor
+                                        .withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -229,7 +234,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           TextButton.icon(
                             onPressed: () {
                               setState(() {
-                                _isTransactionListExpanded = !_isTransactionListExpanded;
+                                _isTransactionListExpanded =
+                                    !_isTransactionListExpanded;
                               });
                             },
                             icon: AnimatedRotation(
@@ -243,7 +249,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             label: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 200),
                               child: Text(
-                                _isTransactionListExpanded ? 'Show Less' : 'View All',
+                                _isTransactionListExpanded
+                                    ? 'Show Less'
+                                    : 'View All',
                                 key: ValueKey(_isTransactionListExpanded),
                               ),
                             ),
@@ -257,39 +265,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         duration: const Duration(milliseconds: 300),
                         child: widget.transactions.isEmpty
                             ? const Center(
-                          key: ValueKey('empty'),
-                          child: Padding(
-                            padding: EdgeInsets.all(32.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.receipt_long_outlined,
-                                  size: 48,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'No transactions yet',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey,
+                                key: ValueKey('empty'),
+                                child: Padding(
+                                  padding: EdgeInsets.all(32.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.receipt_long_outlined,
+                                        size: 48,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'No transactions yet',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Tap the + button to add your first transaction',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Tap the + button to add your first transaction',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                            : _buildScrollableTransactions(key: ValueKey(_isTransactionListExpanded)),
+                              )
+                            : _buildScrollableTransactions(
+                                key: ValueKey(_isTransactionListExpanded)),
                       ),
                     ),
                   ],
@@ -314,13 +323,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.import_export, color: Theme.of(context).primaryColor),
+                Icon(Icons.import_export,
+                    color: Theme.of(context).primaryColor),
                 const SizedBox(width: 8),
                 Text(
                   'Import & Export',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 const Spacer(),
                 // Connection status indicator
@@ -364,7 +374,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => _importExportService.importFromJson(
                       context,
-                          () {
+                      () {
                         // Refresh dashboard after import
                         widget.onTransactionsUpdated();
                       },
@@ -420,7 +430,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.95,
@@ -440,97 +451,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
-            child: DefaultTabController(
-              length: 4,
-              child: Column(
-                children: [
-                  // Header with close button
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                      color: Theme.of(context).primaryColor.withOpacity(0.1),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.circular(12),
+              child: DefaultTabController(
+                length: 4,
+                child: Column(
+                  children: [
+                    // Header with close button
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20)),
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.settings,
+                                color: Colors.white, size: 24),
                           ),
-                          child: const Icon(Icons.settings, color: Colors.white, size: 24),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'App Settings',
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'App Settings',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                'Customize your SecureMoney experience',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey.shade600,
+                                Text(
+                                  'Customize your SecureMoney experience',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Colors.grey.shade600,
+                                      ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(Icons.close),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.grey.shade100,
-                            foregroundColor: Colors.grey.shade700,
+                          IconButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: const Icon(Icons.close),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.grey.shade100,
+                              foregroundColor: Colors.grey.shade700,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Tab Bar
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade200),
+                        ],
                       ),
                     ),
-                    child: TabBar(
-                      labelColor: Theme.of(context).primaryColor,
-                      unselectedLabelColor: Colors.grey.shade600,
-                      indicatorColor: Theme.of(context).primaryColor,
-                      labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 10),
-                      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 10),
-                      isScrollable: false,
-                      tabs: const [
-                        Tab(icon: Icon(Icons.palette, size: 18), text: 'Theme'),
-                        Tab(icon: Icon(Icons.language, size: 18), text: 'Region'),
-                        Tab(icon: Icon(Icons.storage, size: 18), text: 'Data'),
-                        Tab(icon: Icon(Icons.info, size: 18), text: 'About'),
-                      ],
-                    ),
-                  ),
 
-                  // Tab Views
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        _buildThemeSettingsTab(context),
-                        _buildRegionSettingsTab(context),
-                        _buildDataManagementTab(context),
-                        _buildAboutTab(context),
-                      ],
+                    // Tab Bar
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade200),
+                        ),
+                      ),
+                      child: TabBar(
+                        labelColor: Theme.of(context).primaryColor,
+                        unselectedLabelColor: Colors.grey.shade600,
+                        indicatorColor: Theme.of(context).primaryColor,
+                        labelStyle: const TextStyle(
+                            fontWeight: FontWeight.w600, fontSize: 10),
+                        unselectedLabelStyle: const TextStyle(
+                            fontWeight: FontWeight.normal, fontSize: 10),
+                        isScrollable: false,
+                        tabs: const [
+                          Tab(
+                              icon: Icon(Icons.palette, size: 18),
+                              text: 'Theme'),
+                          Tab(
+                              icon: Icon(Icons.language, size: 18),
+                              text: 'Region'),
+                          Tab(
+                              icon: Icon(Icons.storage, size: 18),
+                              text: 'Data'),
+                          Tab(icon: Icon(Icons.info, size: 18), text: 'About'),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+
+                    // Tab Views
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          _buildThemeSettingsTab(context),
+                          _buildRegionSettingsTab(context),
+                          _buildDataManagementTab(context),
+                          _buildAboutTab(context),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -548,13 +576,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.palette, color: Theme.of(context).primaryColor, size: 20),
+              Icon(Icons.palette,
+                  color: Theme.of(context).primaryColor, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Appearance',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),
@@ -562,8 +591,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             'Customize the look and feel of your app',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade600,
-            ),
+                  color: Colors.grey.shade600,
+                ),
           ),
           const SizedBox(height: 16),
 
@@ -593,13 +622,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.color_lens, color: Theme.of(context).primaryColor, size: 18),
+                    Icon(Icons.color_lens,
+                        color: Theme.of(context).primaryColor, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Color Scheme',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ],
                 ),
@@ -651,7 +681,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           style: TextStyle(
             fontSize: 10,
             color: Colors.grey.shade600,
-            fontWeight: color == Colors.green ? FontWeight.w600 : FontWeight.normal,
+            fontWeight:
+                color == Colors.green ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
       ],
@@ -667,13 +698,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.language, color: Theme.of(context).primaryColor, size: 20),
+              Icon(Icons.language,
+                  color: Theme.of(context).primaryColor, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Region & Currency',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),
@@ -681,8 +713,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             'Set your location and currency preferences',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade600,
-            ),
+                  color: Colors.grey.shade600,
+                ),
           ),
           const SizedBox(height: 16),
 
@@ -697,29 +729,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.2)),
+              border: Border.all(
+                  color: Theme.of(context).primaryColor.withOpacity(0.2)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.location_on, color: Theme.of(context).primaryColor, size: 18),
+                    Icon(Icons.location_on,
+                        color: Theme.of(context).primaryColor, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Current Settings',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildSettingRow('Country/Region', CurrencyService.instance.displayName),
+                _buildSettingRow(
+                    'Country/Region', CurrencyService.instance.displayName),
                 const SizedBox(height: 8),
-                _buildSettingRow('Currency Symbol', CurrencyService.instance.currencySymbol),
+                _buildSettingRow(
+                    'Currency Symbol', CurrencyService.instance.currencySymbol),
                 const SizedBox(height: 8),
-                _buildSettingRow('Format Example', CurrencyService.instance.formatAmount(1234.56)),
+                _buildSettingRow('Format Example',
+                    CurrencyService.instance.formatAmount(1234.56)),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -770,7 +807,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.blue.shade700, size: 18),
+                    Icon(Icons.info_outline,
+                        color: Colors.blue.shade700, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Currency Information',
@@ -784,9 +822,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 8),
                 Text(
                   '• Currency affects how amounts are displayed\n'
-                      '• Existing transactions keep their values\n'
-                      '• Change anytime without data loss\n'
-                      '• Supports 190+ countries and currencies',
+                  '• Existing transactions keep their values\n'
+                  '• Change anytime without data loss\n'
+                  '• Supports 190+ countries and currencies',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.blue.shade600,
@@ -809,13 +847,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.storage, color: Theme.of(context).primaryColor, size: 20),
+              Icon(Icons.storage,
+                  color: Theme.of(context).primaryColor, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Data Management',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),
@@ -823,8 +862,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             'Manage your transaction data and security',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade600,
-            ),
+                  color: Colors.grey.shade600,
+                ),
           ),
           const SizedBox(height: 16),
 
@@ -846,7 +885,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.analytics, color: Colors.green.shade700, size: 18),
+                    Icon(Icons.analytics,
+                        color: Colors.green.shade700, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Data Overview',
@@ -860,17 +900,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Expanded(child: _buildStatCard('Total Transactions', '${widget.transactions.length}', Icons.receipt_long)),
+                    Expanded(
+                        child: _buildStatCard(
+                            'Total Transactions',
+                            '${widget.transactions.length}',
+                            Icons.receipt_long)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildStatCard('Storage Used', '< 1 MB', Icons.storage)),
+                    Expanded(
+                        child: _buildStatCard(
+                            'Storage Used', '< 1 MB', Icons.storage)),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Expanded(child: _buildStatCard('Encrypted', '100%', Icons.security)),
+                    Expanded(
+                        child: _buildStatCard(
+                            'Encrypted', '100%', Icons.security)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildStatCard('Local Only', 'Yes', Icons.device_hub)),
+                    Expanded(
+                        child: _buildStatCard(
+                            'Local Only', 'Yes', Icons.device_hub)),
                   ],
                 ),
               ],
@@ -892,13 +942,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.build, color: Theme.of(context).primaryColor, size: 18),
+                    Icon(Icons.build,
+                        color: Theme.of(context).primaryColor, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Quick Actions',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ],
                 ),
@@ -909,7 +960,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   subtitle: 'Create backup of all transactions',
                   onTap: () {
                     Navigator.pop(context);
-                    _importExportService.showExportDialog(context, widget.transactions);
+                    _importExportService.showExportDialog(
+                        context, widget.transactions);
                   },
                 ),
                 _buildActionTile(
@@ -918,7 +970,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   subtitle: 'Restore from backup file',
                   onTap: () {
                     Navigator.pop(context);
-                    _importExportService.importFromJson(context, widget.onTransactionsUpdated);
+                    _importExportService.importFromJson(
+                        context, widget.onTransactionsUpdated);
                   },
                 ),
                 _buildActionTile(
@@ -927,7 +980,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   subtitle: 'Learn about import/export features',
                   onTap: () async {
                     Navigator.pop(context);
-                    await FileOperationsService().showFileOperationsInfo(context);
+                    await FileOperationsService()
+                        .showFileOperationsInfo(context);
                   },
                 ),
               ],
@@ -952,8 +1006,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 'About SecureMoney',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),
@@ -961,8 +1015,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             'Privacy-focused personal finance manager',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade600,
-            ),
+                  color: Colors.grey.shade600,
+                ),
           ),
           const SizedBox(height: 16),
 
@@ -977,7 +1031,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).primaryColor.withOpacity(0.2)),
+              border: Border.all(
+                  color: Theme.of(context).primaryColor.withOpacity(0.2)),
             ),
             child: Column(
               children: [
@@ -987,14 +1042,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Theme.of(context).primaryColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 32),
+                  child: const Icon(Icons.account_balance_wallet,
+                      color: Colors.white, size: 32),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'SecureMoney',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -1028,8 +1084,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Text(
                       'Key Features',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ],
                 ),
@@ -1037,8 +1093,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildFeatureTile(Icons.security, 'End-to-end encryption'),
                 _buildFeatureTile(Icons.offline_pin, 'Local storage only'),
                 _buildFeatureTile(Icons.privacy_tip, 'Privacy-focused design'),
-                _buildFeatureTile(Icons.phone_android, 'Modern Android compatibility'),
-                _buildFeatureTile(Icons.import_export, 'Import/Export capabilities'),
+                _buildFeatureTile(
+                    Icons.phone_android, 'Modern Android compatibility'),
+                _buildFeatureTile(
+                    Icons.import_export, 'Import/Export capabilities'),
                 _buildFeatureTile(Icons.dark_mode, 'Dark theme support'),
               ],
             ),
@@ -1196,7 +1254,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Determine which transactions to show based on expand/collapse state
     final transactionsToShow = _isTransactionListExpanded
         ? sortedTransactions // Show all transactions when expanded
-        : sortedTransactions.take(5).toList(); // Show only first 5 when collapsed
+        : sortedTransactions
+            .take(5)
+            .toList(); // Show only first 5 when collapsed
 
     final Map<String, List<TransactionModel>> displayGrouped = {};
 
@@ -1237,10 +1297,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                     // Transactions for this month
-                    ...monthTransactions.map((transaction) => _buildTransactionTile(transaction, currencyService)),
+                    ...monthTransactions.map((transaction) =>
+                        _buildTransactionTile(transaction, currencyService)),
                     if (index < displayGrouped.keys.length - 1) const Divider(),
                     // Add some bottom padding for the last item
-                    if (index == displayGrouped.keys.length - 1) const SizedBox(height: 16),
+                    if (index == displayGrouped.keys.length - 1)
+                      const SizedBox(height: 16),
                   ],
                 );
               },
@@ -1340,7 +1402,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             // Transactions for this month
-            ...monthTransactions.map((transaction) => _buildTransactionTile(transaction, currencyService)),
+            ...monthTransactions.map((transaction) =>
+                _buildTransactionTile(transaction, currencyService)),
             if (index < recentGrouped.keys.length - 1) const Divider(),
           ],
         );
@@ -1348,13 +1411,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildTransactionTile(TransactionModel transaction, CurrencyService currencyService) {
+  Widget _buildTransactionTile(
+      TransactionModel transaction, CurrencyService currencyService) {
     IconData iconData = transaction.type == 'Expense'
         ? Icons.arrow_downward
         : Icons.arrow_upward;
-    Color iconColor = transaction.type == 'Expense'
-        ? Colors.red
-        : Colors.green;
+    Color iconColor = transaction.type == 'Expense' ? Colors.red : Colors.green;
 
     String displayCategory = transaction.category;
     if (transaction.category == 'Other' && transaction.customCategory != null) {
@@ -1364,7 +1426,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2.0),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
         leading: Container(
           width: 40,
           height: 40,
@@ -1440,7 +1503,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Failed to save transaction. Please try again.'),
+                      content:
+                          Text('Failed to save transaction. Please try again.'),
                       backgroundColor: Colors.red,
                       duration: Duration(seconds: 2),
                     ),
@@ -1455,7 +1519,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to open add transaction screen. Please try again.'),
+            content: Text(
+                'Failed to open add transaction screen. Please try again.'),
             backgroundColor: Colors.red,
           ),
         );
