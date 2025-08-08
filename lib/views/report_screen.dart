@@ -102,106 +102,117 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _buildSummaryCards(double totalIncome, double totalExpenses, CurrencyService currencyService) {
     final balance = totalIncome - totalExpenses;
     
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: Card(
-            color: Colors.green.shade50,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Icon(Icons.trending_up, color: Colors.green.shade700, size: 32),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Income',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.green.shade700,
+        // Balance card in its own row
+        Card(
+          elevation: 4,
+          color: balance >= 0 ? Colors.green.shade50 : Colors.red.shade50,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  balance >= 0 ? Icons.account_balance_wallet : Icons.warning,
+                  color: balance >= 0 ? Colors.green.shade700 : Colors.red.shade700,
+                  size: 36,
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Total Balance',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: balance >= 0 ? Colors.green.shade700 : Colors.red.shade700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    currencyService.formatAmount(totalIncome),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green.shade800,
+                    const SizedBox(height: 4),
+                    Text(
+                      currencyService.formatAmount(balance),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: balance >= 0 ? Colors.green.shade800 : Colors.red.shade800,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Card(
-            color: Colors.red.shade50,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Icon(Icons.trending_down, color: Colors.red.shade700, size: 32),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Expenses',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red.shade700,
-                    ),
+        const SizedBox(height: 12),
+        // Income and Expenses in a row
+        Row(
+          children: [
+            Expanded(
+              child: Card(
+                color: Colors.green.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Icon(Icons.trending_up, color: Colors.green.shade700, size: 32),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Total Income',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.green.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        currencyService.formatAmount(totalIncome),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade800,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    currencyService.formatAmount(totalExpenses),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red.shade800,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Card(
-            color: balance >= 0 ? Colors.blue.shade50 : Colors.orange.shade50,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Icon(
-                    balance >= 0 ? Icons.account_balance_wallet : Icons.warning,
-                    color: balance >= 0 ? Colors.blue.shade700 : Colors.orange.shade700,
-                    size: 32,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Card(
+                color: Colors.red.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Icon(Icons.trending_down, color: Colors.red.shade700, size: 32),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Total Expenses',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        currencyService.formatAmount(totalExpenses),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade800,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Balance',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: balance >= 0 ? Colors.blue.shade700 : Colors.orange.shade700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    currencyService.formatAmount(balance),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: balance >= 0 ? Colors.blue.shade800 : Colors.orange.shade800,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );
