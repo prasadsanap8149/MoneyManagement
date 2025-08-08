@@ -57,7 +57,10 @@ class GetBannerAdState extends State<GetBannerAd> {
     } catch (e) {
       if (kDebugMode) {
         print('❌ Failed to initialize secure configuration: $e');
+        print('💡 Ensure your environment configuration files are properly set up');
       }
+      // Don't load ads if configuration fails
+      return;
     }
   }
 

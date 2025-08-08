@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:secure_money_management/helper/constants.dart';
+import 'package:secure_money_management/services/currency_service.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
@@ -22,6 +23,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   String _type = 'Income';
   String _category = 'Select Category';
   String? _customCategory;
+  String? _paymentMode; // Added payment mode
   final TextEditingController _searchController = TextEditingController();
   List<String> _filteredCategories = [];
   double? _amount;
@@ -37,6 +39,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       _selectedDate = widget.transaction!.date;
       _category = widget.transaction!.category;
       _customCategory = widget.transaction!.customCategory;
+      _paymentMode = widget.transaction!.paymentMode; // Load payment mode
     }
     _filteredCategories =
         Constants.transactionCategory; // Initially, all categories are shown
@@ -79,6 +82,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
         date: _selectedDate,
         category: _category,
         customCategory: _customCategory,
+        paymentMode: _paymentMode, // Include payment mode
       );
 
       widget.onSave(transaction);
@@ -202,6 +206,31 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                   ),
                 if (_category == 'Other')
                   const SizedBox(height: 16),
+                
+                // Payment Mode Dropdown
+                DropdownButtonFormField<String>(
+                  value: _paymentMode,
+                  decoration: InputDecoration(
+                    labelText: 'Payment Mode (Optional)',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.teal),
+                    ),
+                  ),
+                  hint: const Text('Select payment mode'),
+                  items: Constants.paymentModes.map((mode) {
+                    return DropdownMenuItem(
+                        value: mode, child: Text(mode));
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _paymentMode = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
                 GestureDetector(
                   onTap: _presentDatePicker,
                   child: Container(

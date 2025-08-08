@@ -96,6 +96,9 @@ class InterstitialAdWidget {
     } catch (e) {
       if (kDebugMode) {
         print('❌ Error loading interstitial ad: $e');
+        if (e.toString().contains('StateError')) {
+          print('💡 Check your environment configuration files');
+        }
       }
       _isAdLoaded = false;
       _interstitialAd = null;
