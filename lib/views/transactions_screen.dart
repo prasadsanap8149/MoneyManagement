@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:secure_money_management/helper/constants.dart';
-import 'package:secure_money_management/services/secure_transaction_service.dart';
 import 'package:secure_money_management/services/currency_service.dart';
+import 'package:secure_money_management/services/secure_transaction_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
@@ -26,7 +26,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
   List<TransactionModel> _transactions = [];
   List<TransactionModel> _filteredTransactions = [];
   final SecureTransactionService _secureStorage = SecureTransactionService();
-  
+
   // Search and filter controllers
   final TextEditingController _searchController = TextEditingController();
   String _selectedTypeFilter = 'All';
@@ -52,16 +52,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
     try {
       // Initialize the secure transaction service
       await _secureStorage.initialize();
-      
+
       // Attempt to migrate from plain text storage
       final migrated = await _secureStorage.migrateFromPlainTextStorage();
       if (migrated) {
         debugPrint('Successfully migrated transactions to encrypted storage');
       }
-      
+
       // Load transactions after initialization/migration
       await _loadTransactions();
-      
     } catch (e) {
       debugPrint('Error initializing secure storage: $e');
       // Fallback to loading without migration
@@ -72,9 +71,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final currencyService = CurrencyService.instance;
-    final displayTransactions = _filteredTransactions.isEmpty && _searchController.text.isEmpty
-        ? _transactions
-        : _filteredTransactions;
+    final displayTransactions =
+        _filteredTransactions.isEmpty && _searchController.text.isEmpty
+            ? _transactions
+            : _filteredTransactions;
 
     return Scaffold(
       appBar: AppBar(
@@ -111,8 +111,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 });
               },
             ),
-          ],
-        },
+          ]
+        ],
       ),
       body: Column(
         children: [
@@ -158,16 +158,17 @@ class _TransactionScreenState extends State<TransactionScreen> {
         final legacyTransactions = decodedTransactions
             .map((json) => TransactionModel.fromJson(json))
             .toList();
-        
+
         // Migrate to secure storage
         await _secureStorage.saveTransactions(legacyTransactions);
         await prefs.remove('transactions'); // Remove legacy storage
-        
+
         setState(() {
           _transactions = legacyTransactions;
         });
-        
-        debugPrint('Successfully migrated ${legacyTransactions.length} transactions from legacy storage');
+
+        debugPrint(
+            'Successfully migrated ${legacyTransactions.length} transactions from legacy storage');
       }
     } catch (e) {
       debugPrint('Error during legacy migration: $e');
@@ -197,13 +198,13 @@ class _TransactionScreenState extends State<TransactionScreen> {
   // Add or edit a transaction
   Future<void> _saveTransaction(TransactionModel newTransaction) async {
     bool isEdit = newTransaction.id != null;
-    
+
     // Show loading indicator
     UserExperienceHelper.showLoadingSnackbar(
       context,
       isEdit ? 'Updating transaction...' : 'Adding transaction...',
     );
-    
+
     try {
       setState(() {
         if (newTransaction.id == null) {
@@ -243,11 +244,13 @@ class _TransactionScreenState extends State<TransactionScreen> {
     } catch (e) {
       // Hide loading indicator
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      
+
       // Show error toaster if saving fails
       UserExperienceHelper.showErrorSnackbar(
         context,
-        isEdit ? 'Failed to update transaction. Please try again.' : 'Failed to add transaction. Please try again.',
+        isEdit
+            ? 'Failed to update transaction. Please try again.'
+            : 'Failed to add transaction. Please try again.',
       );
     }
   }
@@ -256,8 +259,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
   Future<void> _deleteTransaction(String id) async {
     final currencyService = CurrencyService.instance;
     final transaction = _transactions.firstWhere((txn) => txn.id == id);
-    final transactionName = transaction.category != 'Other' 
-        ? transaction.category 
+    final transactionName = transaction.category != 'Other'
+        ? transaction.category
         : transaction.customCategory!;
     final formattedAmount = currencyService.formatAmount(transaction.amount);
 
@@ -265,10 +268,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
       context,
       title: 'Delete Transaction',
       message: 'Are you sure you want to delete this transaction?\n\n'
-               'Category: $transactionName\n'
-               'Type: ${transaction.type}\n'
-               'Amount: $formattedAmount\n\n'
-               'This action cannot be undone.',
+          'Category: $transactionName\n'
+          'Type: ${transaction.type}\n'
+          'Amount: $formattedAmount\n\n'
+          'This action cannot be undone.',
       confirmText: 'Delete',
       cancelText: 'Cancel',
       confirmColor: Colors.red,
@@ -281,20 +284,20 @@ class _TransactionScreenState extends State<TransactionScreen> {
         context,
         'Deleting transaction...',
       );
-      
+
       try {
         setState(() {
           _transactions.removeWhere((txn) => txn.id == id);
         });
-        
+
         await _saveTransactionsToLocalStorage();
-        
+
         // Notify the home screen that transactions have been updated
         widget.onTransactionsUpdated();
-        
+
         // Hide loading indicator
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        
+
         // Show success toaster
         UserExperienceHelper.showSuccessSnackbar(
           context,
@@ -303,7 +306,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
       } catch (e) {
         // Hide loading indicator
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        
+
         // Show error toaster if deletion fails
         UserExperienceHelper.showErrorSnackbar(
           context,
@@ -334,7 +337,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   // Navigate to edit transaction screen
-  Future<void> _editTransaction(BuildContext context, TransactionModel txn) async {
+  Future<void> _editTransaction(
+      BuildContext context, TransactionModel txn) async {
     try {
       await Navigator.push(
         context,
@@ -396,7 +400,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
     );
   }
 
-  Widget _buildTransactionsList(List<TransactionModel> transactions, CurrencyService currencyService) {
+  Widget _buildTransactionsList(
+      List<TransactionModel> transactions, CurrencyService currencyService) {
     // Sort transactions by date (latest first)
     final sortedTransactions = List<TransactionModel>.from(transactions)
       ..sort((a, b) => b.date.compareTo(a.date));
@@ -410,18 +415,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
     );
   }
 
-  Widget _buildTransactionCard(TransactionModel txn, CurrencyService currencyService) {
+  Widget _buildTransactionCard(
+      TransactionModel txn, CurrencyService currencyService) {
     String displayCategory = txn.category;
     if (txn.category == 'Other' && txn.customCategory != null) {
       displayCategory = txn.customCategory!;
     }
 
-    IconData iconData = txn.type == 'Expense'
-        ? Icons.arrow_downward
-        : Icons.arrow_upward;
-    Color iconColor = txn.type == 'Expense'
-        ? Colors.red
-        : Colors.green;
+    IconData iconData =
+        txn.type == 'Expense' ? Icons.arrow_downward : Icons.arrow_upward;
+    Color iconColor = txn.type == 'Expense' ? Colors.red : Colors.green;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -451,7 +454,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade600),
+                Icon(Icons.calendar_today,
+                    size: 14, color: Colors.grey.shade600),
                 const SizedBox(width: 4),
                 Text(
                   DateFormat('MMM dd, yyyy').format(txn.date),
@@ -507,7 +511,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   color: Colors.blue,
                   onPressed: () => _editTransaction(context, txn),
                   tooltip: 'Edit Transaction',
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
                   padding: EdgeInsets.zero,
                 ),
                 IconButton(
@@ -515,7 +520,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   color: Colors.red,
                   onPressed: () => _deleteTransaction(txn.id!),
                   tooltip: 'Delete Transaction',
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
                   padding: EdgeInsets.zero,
                 ),
               ],
@@ -537,14 +543,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
     }
 
     if (_selectedCategoryFilter != 'All') {
-      activeFilters.add(_buildFilterChip('Category: $_selectedCategoryFilter', () {
+      activeFilters
+          .add(_buildFilterChip('Category: $_selectedCategoryFilter', () {
         setState(() => _selectedCategoryFilter = 'All');
         _applyFilters();
       }));
     }
 
     if (_selectedDateRange != null) {
-      final dateStr = '${DateFormat('MMM dd').format(_selectedDateRange!.start)} - ${DateFormat('MMM dd').format(_selectedDateRange!.end)}';
+      final dateStr =
+          '${DateFormat('MMM dd').format(_selectedDateRange!.start)} - ${DateFormat('MMM dd').format(_selectedDateRange!.end)}';
       activeFilters.add(_buildFilterChip('Date: $dateStr', () {
         setState(() => _selectedDateRange = null);
         _applyFilters();
@@ -560,7 +568,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
         children: [
           Row(
             children: [
-              const Text('Active Filters:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+              const Text('Active Filters:',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
               const Spacer(),
               TextButton(
                 onPressed: _clearAllFilters,
@@ -589,56 +598,59 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   bool _hasActiveFilters() {
     return _selectedTypeFilter != 'All' ||
-           _selectedCategoryFilter != 'All' ||
-           _selectedDateRange != null;
+        _selectedCategoryFilter != 'All' ||
+        _selectedDateRange != null;
   }
 
   void _performSearch() {
     final query = _searchController.text.toLowerCase();
-    
+
     setState(() {
       if (query.isEmpty) {
         _filteredTransactions = [];
       } else {
         _filteredTransactions = _transactions.where((transaction) {
-          final category = transaction.category == 'Other' 
+          final category = transaction.category == 'Other'
               ? (transaction.customCategory ?? '').toLowerCase()
               : transaction.category.toLowerCase();
           final amount = transaction.amount.toString();
-          final date = DateFormat('MMM dd yyyy').format(transaction.date).toLowerCase();
+          final date =
+              DateFormat('MMM dd yyyy').format(transaction.date).toLowerCase();
           final paymentMode = (transaction.paymentMode ?? '').toLowerCase();
-          
+
           return category.contains(query) ||
-                 amount.contains(query) ||
-                 date.contains(query) ||
-                 paymentMode.contains(query);
+              amount.contains(query) ||
+              date.contains(query) ||
+              paymentMode.contains(query);
         }).toList();
       }
     });
-    
+
     _applyFilters();
   }
 
   void _applyFilters() {
-    final baseList = _searchController.text.isEmpty ? _transactions : _filteredTransactions;
-    
+    final baseList =
+        _searchController.text.isEmpty ? _transactions : _filteredTransactions;
+
     setState(() {
       _filteredTransactions = baseList.where((transaction) {
         // Type filter
-        if (_selectedTypeFilter != 'All' && transaction.type != _selectedTypeFilter) {
+        if (_selectedTypeFilter != 'All' &&
+            transaction.type != _selectedTypeFilter) {
           return false;
         }
-        
+
         // Category filter
         if (_selectedCategoryFilter != 'All') {
-          final transactionCategory = transaction.category == 'Other' 
+          final transactionCategory = transaction.category == 'Other'
               ? transaction.customCategory ?? ''
               : transaction.category;
           if (transactionCategory != _selectedCategoryFilter) {
             return false;
           }
         }
-        
+
         // Date range filter
         if (_selectedDateRange != null) {
           if (transaction.date.isBefore(_selectedDateRange!.start) ||
@@ -646,7 +658,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
             return false;
           }
         }
-        
+
         return true;
       }).toList();
     });
@@ -672,7 +684,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Type filter
-              const Text('Transaction Type:', style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text('Transaction Type:',
+                  style: TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(height: 8),
               DropdownButton<String>(
                 value: _selectedTypeFilter,
@@ -685,24 +698,31 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Category filter
-              const Text('Category:', style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text('Category:',
+                  style: TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(height: 8),
               DropdownButton<String>(
                 value: _selectedCategoryFilter,
                 isExpanded: true,
-                items: ['All', ...Constants.transactionCategory.where((c) => c != 'Select Category')].map((category) {
-                  return DropdownMenuItem(value: category, child: Text(category));
+                items: [
+                  'All',
+                  ...Constants.transactionCategory
+                      .where((c) => c != 'Select Category')
+                ].map((category) {
+                  return DropdownMenuItem(
+                      value: category, child: Text(category));
                 }).toList(),
                 onChanged: (value) {
                   setState(() => _selectedCategoryFilter = value!);
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Date range filter
-              const Text('Date Range:', style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text('Date Range:',
+                  style: TextStyle(fontWeight: FontWeight.w500)),
               const SizedBox(height: 8),
               OutlinedButton(
                 onPressed: () async {
