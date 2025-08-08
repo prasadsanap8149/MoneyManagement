@@ -5,10 +5,12 @@ import 'package:provider/provider.dart';
 import 'package:secure_money_management/views/dashboard.dart';
 import 'package:secure_money_management/views/recent_transactions.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
+import 'package:secure_money_management/views/report_screen.dart';
 import 'package:secure_money_management/screens/splash_screen.dart';
 import 'package:secure_money_management/services/lazy_initialization_service.dart';
 import 'package:secure_money_management/services/secure_transaction_service.dart';
 import 'package:secure_money_management/services/theme_service.dart';
+import 'package:secure_money_management/services/currency_service.dart';
 import 'package:secure_money_management/widgets/theme_settings_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/transaction_model.dart';
@@ -19,6 +21,9 @@ Future<void> main() async {
   // Initialize theme service
   final themeService = ThemeService();
   await themeService.initialize();
+  
+  // Initialize currency service
+  await CurrencyService.instance.initialize();
   
   runApp(MoneyManagementApp(themeService: themeService));
 }
@@ -356,10 +361,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           },
         );
       case 2:
-        // return ReportsScreen(transactions: _transactions);
-        return RecentTransactions(
-          onTransactionsUpdated: _loadTransactions,
-        );
+        return ReportsScreen(transactions: _transactions);
       default:
         return DashboardScreen(transactions: _transactions, totalBalance: _totalBalance, onTransactionsUpdated: _loadTransactions);
     }
