@@ -254,11 +254,12 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   // Delete a transaction with confirmation
   Future<void> _deleteTransaction(String id) async {
+    final currencyService = CurrencyService.instance;
     final transaction = _transactions.firstWhere((txn) => txn.id == id);
     final transactionName = transaction.category != 'Other' 
         ? transaction.category 
         : transaction.customCategory!;
-    final formattedAmount = indianRupeeFormat.format(transaction.amount);
+    final formattedAmount = currencyService.formatAmount(transaction.amount);
 
     final confirmed = await UserExperienceHelper.showConfirmationDialog(
       context,
