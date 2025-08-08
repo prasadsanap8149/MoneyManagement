@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:secure_money_management/services/lazy_initialization_service.dart';
+import 'package:secure_money_management/services/system_ui_service.dart';
 import '../main.dart' show HomeScreen;
 
 /// Splash Screen with proper initialization and branding
@@ -79,6 +80,10 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _performInitialization() async {
+    // Configure system UI for splash screen
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    SystemUIService.instance.configureSystemUI(isDarkMode: isDarkMode);
+    
     // Step 1: Basic app initialization
     _updateLoadingText('⚙️ Loading configuration...');
     await Future.delayed(const Duration(milliseconds: 400));
@@ -167,7 +172,12 @@ class _SplashScreenState extends State<SplashScreen>
               ],
             ),
           ),
-          child: SafeArea(
+          // Use full screen for edge-to-edge, but add padding for safe areas
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top,
+              bottom: MediaQuery.of(context).padding.bottom,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
