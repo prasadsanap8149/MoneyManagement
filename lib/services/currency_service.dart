@@ -62,6 +62,11 @@ class CurrencyService {
     }
   }
 
+  // Refresh currency settings from SharedPreferences
+  Future<void> refreshSettings() async {
+    await _loadCurrencySettings();
+  }
+
   NumberFormat get currencyFormat {
     try {
       return NumberFormat.currency(locale: _currencyLocale, symbol: _currencySymbol);
