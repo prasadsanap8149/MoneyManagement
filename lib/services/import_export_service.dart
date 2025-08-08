@@ -117,7 +117,7 @@ class ImportExportService {
         try {
           // Create CSV data
           List<List<dynamic>> csvData = [
-            ['Date', 'Type', 'Category', 'Payment Mode', 'Amount', 'Description'],
+            ['Date', 'Type', 'Category', 'Payment Mode', 'Amount'],
           ];
 
           for (final transaction in transactions) {
@@ -127,7 +127,7 @@ class ImportExportService {
               transaction.category,
               transaction.paymentMode ?? 'N/A',
               transaction.amount.toString(),
-              transaction.description,
+              //transaction.description,
             ]);
           }
 
@@ -247,7 +247,7 @@ class ImportExportService {
                           pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text('Category', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
                           pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text('Payment', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
                           pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
-                          pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text('Description', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                          //pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text('Description', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
                         ],
                       ),
                       // Data rows
@@ -258,7 +258,7 @@ class ImportExportService {
                           pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(transaction.category, style: const pw.TextStyle(fontSize: 10))),
                           pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(transaction.paymentMode ?? '', style: const pw.TextStyle(fontSize: 10))),
                           pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(_currencyService.formatAmount(transaction.amount), style: const pw.TextStyle(fontSize: 10))),
-                          pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(transaction.description, style: const pw.TextStyle(fontSize: 10))),
+                          //pw.Padding(padding: const pw.EdgeInsets.all(4), child: pw.Text(transaction.description, style: const pw.TextStyle(fontSize: 10))),
                         ],
                       )).toList(),
                     ],

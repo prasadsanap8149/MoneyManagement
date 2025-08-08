@@ -134,9 +134,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const Text('Total Income'),
                               const SizedBox(height: 8),
                               Text(
-                                totalIncome > 0 
-                                  ? currencyService.formatAmount(totalIncome)
-                                  : currencyService.formatAmount(0),
+                                totalIncome > 0
+                                    ? currencyService.formatAmount(totalIncome)
+                                    : currencyService.formatAmount(0),
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -175,15 +175,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 5),
-                
+
                 // Import/Export Quick Actions
                 _buildImportExportSection(),
-                
+
                 const SizedBox(height: 5),
               ],
             ),
           ),
-          
+
           // Scrollable Recent Transactions Section
           Expanded(
             child: Padding(
@@ -257,38 +257,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         duration: const Duration(milliseconds: 300),
                         child: widget.transactions.isEmpty
                             ? const Center(
-                                key: ValueKey('empty'),
-                                child: Padding(
-                                  padding: EdgeInsets.all(32.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.receipt_long_outlined,
-                                        size: 48,
-                                        color: Colors.grey,
-                                      ),
-                                      SizedBox(height: 8),
-                                      Text(
-                                        'No transactions yet',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        'Tap the + button to add your first transaction',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ],
+                          key: ValueKey('empty'),
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.receipt_long_outlined,
+                                  size: 48,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'No transactions yet',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
                                   ),
                                 ),
-                              )
+                                SizedBox(height: 4),
+                                Text(
+                                  'Tap the + button to add your first transaction',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
                             : _buildScrollableTransactions(key: ValueKey(_isTransactionListExpanded)),
                       ),
                     ),
@@ -331,9 +331,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: _connectivityService.isConnected 
-                          ? Colors.green 
-                          : Colors.red,
+                        color: _connectivityService.isConnected
+                            ? Colors.green
+                            : Colors.red,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -364,7 +364,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => _importExportService.importFromJson(
                       context,
-                      () {
+                          () {
                         // Refresh dashboard after import
                         widget.onTransactionsUpdated();
                       },
@@ -487,7 +487,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                   ),
-                  
+
                   // Tab Bar
                   Container(
                     decoration: BoxDecoration(
@@ -509,7 +509,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                   ),
-                  
+
                   // Tab Views
                   Expanded(
                     child: TabBarView(
@@ -557,7 +557,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Theme Settings Widget
           Container(
             padding: const EdgeInsets.all(16),
@@ -568,9 +568,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             child: const ThemeSettingsWidget(),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Additional theme options
           Container(
             padding: const EdgeInsets.all(16),
@@ -632,9 +632,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade300, width: 2),
           ),
-          child: color == Colors.green 
-            ? const Icon(Icons.check, color: Colors.white, size: 20)
-            : null,
+          child: color == Colors.green
+              ? const Icon(Icons.check, color: Colors.white, size: 20)
+              : null,
         ),
         const SizedBox(height: 4),
         Text(
@@ -676,7 +676,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Current Settings Display
           Container(
             padding: const EdgeInsets.all(16),
@@ -742,9 +742,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Additional Info
           Container(
             padding: const EdgeInsets.all(16),
@@ -772,9 +772,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: 8),
                 Text(
                   '• Currency affects how amounts are displayed\n'
-                  '• Existing transactions keep their values\n'
-                  '• Change anytime without data loss\n'
-                  '• Supports 190+ countries and currencies',
+                      '• Existing transactions keep their values\n'
+                      '• Change anytime without data loss\n'
+                      '• Supports 190+ countries and currencies',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.blue.shade600,
@@ -815,7 +815,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Data Statistics
           Container(
             padding: const EdgeInsets.all(16),
@@ -864,9 +864,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Quick Actions
           Container(
             padding: const EdgeInsets.all(16),
@@ -953,7 +953,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // App Info
           Container(
             padding: const EdgeInsets.all(16),
@@ -995,9 +995,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Features
           Container(
             padding: const EdgeInsets.all(16),
@@ -1031,9 +1031,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
           // Copyright
           Center(
             child: Text(
@@ -1050,7 +1050,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   /// Helper Methods for Building UI Components
-  
+
   Widget _buildSettingRow(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1160,14 +1160,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildScrollableTransactions({Key? key}) {
     final currencyService = CurrencyService.instance;
-    
+
     // Sort transactions by date (latest first)
     final sortedTransactions = List<TransactionModel>.from(widget.transactions)
       ..sort((a, b) => b.date.compareTo(a.date));
 
     // Group transactions by month
     final Map<String, List<TransactionModel>> groupedTransactions = {};
-    
+
     for (final transaction in sortedTransactions) {
       final monthKey = DateFormat('MMMM yyyy').format(transaction.date);
       if (groupedTransactions[monthKey] == null) {
@@ -1177,12 +1177,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     // Determine which transactions to show based on expand/collapse state
-    final transactionsToShow = _isTransactionListExpanded 
+    final transactionsToShow = _isTransactionListExpanded
         ? sortedTransactions // Show all transactions when expanded
         : sortedTransactions.take(5).toList(); // Show only first 5 when collapsed
-    
+
     final Map<String, List<TransactionModel>> displayGrouped = {};
-    
+
     for (final transaction in transactionsToShow) {
       final monthKey = DateFormat('MMMM yyyy').format(transaction.date);
       if (displayGrouped[monthKey] == null) {
@@ -1252,7 +1252,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => TransactionScreen(
-                        transactions: widget.transactions,
                         onTransactionsUpdated: widget.onTransactionsUpdated,
                       ),
                     ),
@@ -1272,14 +1271,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildMonthSeparatedTransactions() {
     final currencyService = CurrencyService.instance;
-    
+
     // Sort transactions by date (latest first)
     final sortedTransactions = List<TransactionModel>.from(widget.transactions)
       ..sort((a, b) => b.date.compareTo(a.date));
 
     // Group transactions by month
     final Map<String, List<TransactionModel>> groupedTransactions = {};
-    
+
     for (final transaction in sortedTransactions) {
       final monthKey = DateFormat('MMMM yyyy').format(transaction.date);
       if (groupedTransactions[monthKey] == null) {
@@ -1291,7 +1290,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // Show only recent transactions (last 10 transactions)
     final recentTransactions = sortedTransactions.take(10).toList();
     final Map<String, List<TransactionModel>> recentGrouped = {};
-    
+
     for (final transaction in recentTransactions) {
       final monthKey = DateFormat('MMMM yyyy').format(transaction.date);
       if (recentGrouped[monthKey] == null) {
@@ -1408,7 +1407,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               try {
                 // Save the transaction using the provided callback
                 await widget.onSaveTransaction(transaction);
-                
+
                 // Show success message
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
