@@ -1,12 +1,12 @@
 buildscript {
-    ext.kotlin_version = '1.9.22'
+    ext.kotlin_version = '1.9.25'
     repositories {
         google()  // Required for Firebase dependencies
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
-        classpath 'com.google.gms:google-services:4.4.3'
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath 'com.google.gms:google-services:4.4.0'  // Use stable version known to work with JDK 17
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -15,6 +15,17 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+    
+    // ✅ Force JDK 17 for all projects using toolchain
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 17
+    }
+    
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
     }
 }
 
@@ -29,18 +40,25 @@ subprojects {
 
 // ✅ Force Java 17 + Kotlin JVM target for all subprojects
 subprojects {
-    if (plugins.hasPlugin("kotlin-android") || plugins.hasPlugin("kotlin")) {
-        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-            kotlinOptions {
-                jvmTarget = "17"
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("kotlin-android") || project.plugins.hasPlugin("kotlin")) {
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions {
+                    jvmTarget = "17"
+                }
             }
         }
-    }
-    if (plugins.hasPlugin("com.android.application") || plugins.hasPlugin("com.android.library")) {
-        android {
-            compileOptions {
-                sourceCompatibility JavaVersion.VERSION_17
-                targetCompatibility JavaVersion.VERSION_17
+        if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+                if (project.hasProperty('kotlinOptions')) {
+                    kotlinOptions {
+                        jvmTarget = "17"
+                    }
+                }
             }
         }
     }
