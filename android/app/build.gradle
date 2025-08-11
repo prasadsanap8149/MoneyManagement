@@ -38,11 +38,6 @@ android {
         jvmTarget = '17'
     }
 
-    // ✅ Ensure Kotlin uses JVM Toolchain 17 for all modules
-    kotlin {
-        jvmToolchain(17)
-    }
-
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
