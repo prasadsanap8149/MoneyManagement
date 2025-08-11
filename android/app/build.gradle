@@ -15,15 +15,8 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '5'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0.4'
-}
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '5'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0.4'
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -44,6 +37,12 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+
+    // ✅ Ensure Kotlin uses JVM Toolchain 17 for all modules
+    kotlin {
+        jvmToolchain(17)
+    }
+
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
@@ -80,19 +79,18 @@ flutter {
 }
 
 dependencies {
-    // Import the Firebase BoM
+    // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
 
-    // Firebase dependencies
-    // Firebase dependencies
+    // Firebase
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.google.android.gms:play-services-ads:24.4.0'
-    
-    // AndroidX Core for edge-to-edge support
+
+    // AndroidX Core for edge-to-edge
     implementation 'androidx.core:core-ktx:1.12.0'
 }
 

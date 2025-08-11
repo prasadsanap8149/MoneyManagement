@@ -10,6 +10,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
 allprojects {
     repositories {
         google()
@@ -18,12 +19,33 @@ allprojects {
 }
 
 rootProject.buildDir = '../build'
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
     project.evaluationDependsOn(':app')
 }
+
+// ✅ Force Java 17 + Kotlin JVM target for all subprojects
+subprojects {
+    if (plugins.hasPlugin("kotlin-android") || plugins.hasPlugin("kotlin")) {
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+    }
+    if (plugins.hasPlugin("com.android.application") || plugins.hasPlugin("com.android.library")) {
+        android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_17
+                targetCompatibility JavaVersion.VERSION_17
+            }
+        }
+    }
+}
+
 
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
