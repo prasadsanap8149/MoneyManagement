@@ -38,10 +38,13 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       _amount = widget.transaction!.amount;
       _type = widget.transaction!.type;
       _selectedDate = widget.transaction!.date;
-      _category = widget.transaction!.category;
+      _category = Constants.getCategoryDisplayName(widget.transaction!.category);
       _customCategory = widget.transaction!.customCategory;
-      _paymentMode = widget.transaction!.paymentMode; // Load payment mode
+      _paymentMode = widget.transaction!.paymentMode;
+    } else {
+      _category = Constants.transactionCategory[0]; // Default placeholder
     }
+
     _filteredCategories =
         Constants.transactionCategory; // Initially, all categories are shown
     _searchController.addListener(() {
@@ -329,7 +332,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                if (_category == 'Other')
+                if (_category == 'Other' || _category == 'Other 📋')
                   TextFormField(
                     initialValue: _customCategory == null
                         ? ''
@@ -351,7 +354,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                     },
                     onSaved: (value) => _customCategory = value!,
                   ),
-                if (_category == 'Other')
+                if (_category == 'Other' || _category == 'Other 📋')
                   const SizedBox(height: 16),
                 
                 // Payment Mode Dropdown

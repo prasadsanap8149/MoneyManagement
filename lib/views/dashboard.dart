@@ -1196,7 +1196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Frequently Asked Questions',
+                      'FAQ',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Colors.orange.shade800,
@@ -1262,7 +1262,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 12),
                 ...[
-                  'Long-press transactions to delete them quickly',
                   'Use custom categories for better organization',
                   'Export your data regularly as backup',
                   'Use search and filters to find specific transactions',

@@ -24,7 +24,7 @@ class Constants{
     "Coffee Shops ☕",
     "Clothing and Personal Care 👔",
     "Dining Out 🍽️",
-    "Donations 🤝",
+    "Donations",
     "Education 📚",
     "Entertainment 🎬",
     "Freelance Income 💻",
