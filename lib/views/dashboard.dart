@@ -1362,7 +1362,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Version 1.0.1+3',
+                  'Version 1.0.6+7',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 14,
