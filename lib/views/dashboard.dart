@@ -10,6 +10,11 @@ import 'package:secure_money_management/views/add_edit_transaction_form.dart';
 import 'package:secure_money_management/views/country_selection_screen.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
 import 'package:secure_money_management/widgets/theme_settings_widget.dart';
+import 'package:secure_money_management/widgets/feature_hint.dart';
+import 'package:secure_money_management/widgets/help_demo_widget.dart';
+import 'package:secure_money_management/widgets/faq_widget.dart';
+import 'package:secure_money_management/services/onboarding_service.dart';
+import 'package:secure_money_management/screens/splash_screen.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
@@ -72,15 +77,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text('Dashboard'),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _navigateToAddTransaction(context),
-            tooltip: 'Add Transaction',
+          FeatureHint(
+            message: "Tap here to add your first transaction! 💰\n\nYou can track both income and expenses.",
+            stepId: "add_transaction_button",
+            child: IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () => _navigateToAddTransaction(context),
+              tooltip: 'Add Transaction',
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => _showAppSettingsDialog(context),
-            tooltip: 'App Settings',
+          FeatureHint(
+            message: "Access app settings, themes, and tutorials here! ⚙️",
+            stepId: "settings_button",
+            child: IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () => _showAppSettingsDialog(context),
+              tooltip: 'App Settings',
+            ),
           ),
         ],
       ),
@@ -453,7 +466,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               child: DefaultTabController(
-                length: 4,
+                length: 5,
                 child: Column(
                   children: [
                     // Header with close button
@@ -542,6 +555,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Tab(
                               icon: Icon(Icons.storage, size: 18),
                               text: 'Data'),
+                          Tab(icon: Icon(Icons.help, size: 18), text: 'Help'),
                           Tab(icon: Icon(Icons.info, size: 18), text: 'About'),
                         ],
                       ),
@@ -554,6 +568,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           _buildThemeSettingsTab(context),
                           _buildRegionSettingsTab(context),
                           _buildDataManagementTab(context),
+                          _buildHelpTab(context),
                           _buildAboutTab(context),
                         ],
                       ),
@@ -985,6 +1000,299 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         .showFileOperationsInfo(context);
                   },
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build Help Tab
+  Widget _buildHelpTab(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.help, color: Theme.of(context).primaryColor, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Help & Support',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Get help and learn how to use SecureMoney',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey.shade600,
+                ),
+          ),
+          const SizedBox(height: 20),
+
+          // Tutorial Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.blue.shade50,
+                  Colors.blue.shade100,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.school, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Interactive Tutorial',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade800,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Step-by-step guide to get you started with SecureMoney',
+                  style: TextStyle(color: Colors.blue.shade700),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      Navigator.pop(context); // Close settings
+                      await OnboardingService.resetTutorial();
+                      if (mounted) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SplashScreen(),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Text('Start Tutorial'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // How it Works Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.green.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.play_circle, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'How SecureMoney Works',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade800,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Watch a quick demo of the main features',
+                  style: TextStyle(color: Colors.green.shade700),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context); // Close settings
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HelpDemoWidget(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.video_library),
+                    label: const Text('Watch Demo'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // FAQ Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.quiz, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Frequently Asked Questions',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange.shade800,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Find answers to common questions',
+                  style: TextStyle(color: Colors.orange.shade700),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context); // Close settings
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FAQWidget(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.help_outline),
+                    label: const Text('View FAQ'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Quick Tips
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.purple.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.purple.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.lightbulb, color: Colors.purple, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Quick Tips',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple.shade800,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ...[
+                  'Long-press transactions to delete them quickly',
+                  'Use custom categories for better organization',
+                  'Export your data regularly as backup',
+                  'Use search and filters to find specific transactions',
+                  'Check reports for spending insights',
+                ].map((tip) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        margin: const EdgeInsets.only(top: 6, right: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.purple,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          tip,
+                          style: TextStyle(
+                            color: Colors.purple.shade700,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
               ],
             ),
           ),
