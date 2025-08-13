@@ -15,15 +15,8 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '3'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0.2'
-}
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '5'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0.4'
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
@@ -33,17 +26,18 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.prasadSanap.secure_money_management"
-    compileSdk 36
+    compileSdk 35
     ndkVersion "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
+
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
@@ -60,7 +54,7 @@ android {
     defaultConfig {
         applicationId "com.prasadSanap.secure_money_management"
         minSdkVersion 23
-        targetSdkVersion 36
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -80,17 +74,24 @@ flutter {
 }
 
 dependencies {
-    // Import the Firebase BoM
+    // Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:33.16.0"))
 
-    // Firebase dependencies
-    // Firebase dependencies
+    // Firebase
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.google.android.gms:play-services-ads:24.4.0'
+
+    // AndroidX Core for edge-to-edge
+    implementation 'androidx.core:core-ktx:1.12.0'
+}
+
+// ✅ Configure Kotlin JVM Toolchain for Java 17 compatibility
+kotlin {
+    jvmToolchain(17)
 }
 
 apply plugin: 'com.google.gms.google-services'
