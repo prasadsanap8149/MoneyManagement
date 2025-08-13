@@ -165,18 +165,20 @@ class Constants{
 
   /// Helper function to get category display name with emoji
   static String getCategoryDisplayName(String category) {
-    // Handle backward compatibility for existing categories without emojis
+    String cleanCategory = getCategoryStorageName(category);
+
     for (String categoryWithEmoji in transactionCategory) {
-      if (categoryWithEmoji.startsWith(category) || 
-          categoryWithEmoji.contains(category)) {
-        return categoryWithEmoji;
+      if (getCategoryStorageName(categoryWithEmoji).toLowerCase() ==
+          cleanCategory.toLowerCase()) {
+        return categoryWithEmoji; // Return emoji version
       }
     }
-    
-    // If not found, return the original category
+
+    // If not found in list, return original
     return category;
   }
-  
+
+
   /// Helper function to get category name without emoji for storage
   static String getCategoryStorageName(String categoryWithEmoji) {
     // Remove emoji and trim whitespace
@@ -185,18 +187,16 @@ class Constants{
   
   /// Helper function to check if category exists (with or without emoji)
   static bool isCategoryValid(String category) {
-    // Check exact match first
-    if (transactionCategory.contains(category)) {
-      return true;
-    }
-    
-    // Check if category without emoji exists
+    String cleanCategory = getCategoryStorageName(category);
+
     for (String categoryWithEmoji in transactionCategory) {
-      if (getCategoryStorageName(categoryWithEmoji) == category) {
+      if (getCategoryStorageName(categoryWithEmoji).toLowerCase() ==
+          cleanCategory.toLowerCase()) {
         return true;
       }
     }
-    
+
     return false;
   }
+
 }

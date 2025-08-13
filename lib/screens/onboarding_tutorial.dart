@@ -19,41 +19,47 @@ class OnboardingTutorial extends StatefulWidget {
 class _OnboardingTutorialState extends State<OnboardingTutorial> {
   PageController _pageController = PageController();
   int _currentPage = 0;
-  
+
   final List<OnboardingStep> _steps = [
     OnboardingStep(
       title: 'Welcome to SecureMoney! 🎉',
-      description: 'Your personal finance manager with bank-grade security. Let\'s get you started!',
+      description:
+          'Your personal finance manager with bank-grade security. Let\'s get you started!',
       icon: Icons.account_balance_wallet,
       color: Colors.green,
     ),
     OnboardingStep(
       title: 'Add Your First Transaction 💰',
-      description: 'Tap the + button anywhere in the app to add income or expenses. It\'s that simple!',
+      description:
+          'Tap the + button anywhere in the app to add income or expenses. It\'s that simple!',
       icon: Icons.add_circle,
       color: Colors.blue,
     ),
     OnboardingStep(
       title: 'Track Your Spending 📊',
-      description: 'View detailed reports and analytics to understand your spending patterns and financial health.',
+      description:
+          'View detailed reports and analytics to understand your spending patterns and financial health.',
       icon: Icons.analytics,
       color: Colors.purple,
     ),
     OnboardingStep(
       title: 'Secure & Private 🔒',
-      description: 'Your data is encrypted and stored securely on your device. No cloud storage, complete privacy!',
+      description:
+          'Your data is encrypted and stored securely on your device. No cloud storage, complete privacy!',
       icon: Icons.security,
       color: Colors.orange,
     ),
     OnboardingStep(
       title: 'Import & Export 📤',
-      description: 'Easily backup your data or import from other apps using JSON, CSV, PDF, or Excel formats.',
+      description:
+          'Easily backup your data or import from other apps using JSON, CSV, PDF, or Excel formats.',
       icon: Icons.import_export,
       color: Colors.teal,
     ),
     OnboardingStep(
       title: 'You\'re All Set! 🚀',
-      description: 'Ready to take control of your finances? Let\'s start your financial journey!',
+      description:
+          'Ready to take control of your finances? Let\'s start your financial journey!',
       icon: Icons.rocket_launch,
       color: Colors.green,
     ),
@@ -94,7 +100,11 @@ class _OnboardingTutorialState extends State<OnboardingTutorial> {
   void _skipTutorial() async {
     await OnboardingService.markTutorialAsSeen();
     await OnboardingService.completeFirstLaunch();
-    widget.onSkip?.call() ?? widget.onComplete();
+    if (widget.onSkip != null) {
+      widget.onSkip!();
+    } else {
+      widget.onComplete();
+    }
   }
 
   @override
@@ -113,9 +123,9 @@ class _OnboardingTutorialState extends State<OnboardingTutorial> {
                   Text(
                     'Getting Started',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
                   ),
                   TextButton(
                     onPressed: _skipTutorial,
@@ -205,7 +215,9 @@ class _OnboardingTutorialState extends State<OnboardingTutorial> {
                           : Icons.arrow_forward,
                     ),
                     label: Text(
-                      _currentPage == _steps.length - 1 ? 'Get Started' : 'Next',
+                      _currentPage == _steps.length - 1
+                          ? 'Get Started'
+                          : 'Next',
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -259,9 +271,9 @@ class _OnboardingTutorialState extends State<OnboardingTutorial> {
           Text(
             step.title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
             textAlign: TextAlign.center,
           ),
 
@@ -271,9 +283,9 @@ class _OnboardingTutorialState extends State<OnboardingTutorial> {
           Text(
             step.description,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey.shade700,
-              height: 1.5,
-            ),
+                  color: Colors.grey.shade700,
+                  height: 1.5,
+                ),
             textAlign: TextAlign.center,
           ),
 
