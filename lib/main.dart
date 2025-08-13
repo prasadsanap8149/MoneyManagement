@@ -7,12 +7,16 @@ import 'package:secure_money_management/views/recent_transactions.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
 import 'package:secure_money_management/views/report_screen.dart';
 import 'package:secure_money_management/screens/splash_screen.dart';
+import 'package:secure_money_management/screens/onboarding_tutorial.dart';
 import 'package:secure_money_management/services/lazy_initialization_service.dart';
 import 'package:secure_money_management/services/secure_transaction_service.dart';
 import 'package:secure_money_management/services/theme_service.dart';
 import 'package:secure_money_management/services/currency_service.dart';
 import 'package:secure_money_management/services/system_ui_service.dart';
+import 'package:secure_money_management/services/onboarding_service.dart';
+import 'package:secure_money_management/services/gamification_service.dart';
 import 'package:secure_money_management/widgets/theme_settings_widget.dart';
+import 'package:secure_money_management/widgets/sample_data_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/transaction_model.dart';
 
@@ -135,12 +139,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final SecureTransactionService _secureStorage = SecureTransactionService();
   bool _isLoading = false;
   bool _isInitialized = false;
+  bool _showOnboarding = false;
+  bool _showSampleDataPrompt = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this); // Add lifecycle observer
-    _initializeAndLoadTransactions(); // Initialize secure storage and load transactions
+    _checkOnboardingAndInitialize(); // Check onboarding and initialize
   }
 
   @override
@@ -149,7 +155,93 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  /// Handle app lifecycle changes (background/foreground)
+  /// Check onboarding state and initialize app
+  Future<void> _checkOnboardingAndInitialize() async {
+    try {
+      // Check if this is first launch
+      final isFirstLaunch = await OnboardingService.isFirstLaunch();
+      final hasSeenTutorial = await OnboardingService.hasSeenTutorial();
+      
+      if (isFirstLaunch && !hasSeenTutorial) {
+        setState(() {
+          _showOnboarding = true;
+        });
+        return;
+      }
+      
+      // Initialize app normally
+      await _initializeAndLoadTransactions();
+      
+      // Check if we should show sample data prompt
+      if (_transactions.isEmpty && isFirstLaunch) {
+        setState(() {
+          _showSampleDataPrompt = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error during onboarding check: $e');
+      // Fallback to normal initialization
+      await _initializeAndLoadTransactions();
+    }
+  }
+
+  /// Complete onboarding and proceed to app
+  void _completeOnboarding() {
+    setState(() {
+      _showOnboarding = false;
+    });
+    _initializeAndLoadTransactions();
+  }
+
+  /// Load sample data for new users
+  Future<void> _loadSampleData() async {
+    try {
+      final sampleTransactions = SampleDataHelper.getSampleTransactions();
+      final transactionModels = sampleTransactions.map((sample) {
+        return TransactionModel(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          amount: sample.amount,
+          type: sample.type,
+          date: sample.date,
+          category: sample.category,
+          customCategory: sample.description,
+          paymentMode: 'Sample',
+        );
+      }).toList();
+
+      // Save sample transactions
+      await _secureStorage.saveTransactions(transactionModels);
+      
+      // Reload transactions
+      await _loadTransactions();
+      
+      setState(() {
+        _showSampleDataPrompt = false;
+      });
+      
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sample data loaded! You can clear it anytime from settings.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error loading sample data: $e');
+      setState(() {
+        _showSampleDataPrompt = false;
+      });
+    }
+  }
+
+  /// Skip sample data and start fresh
+  void _skipSampleData() {
+    setState(() {
+      _showSampleDataPrompt = false;
+    });
+  }
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -293,6 +385,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    // Show onboarding tutorial if needed
+    if (_showOnboarding) {
+      return OnboardingTutorial(
+        onComplete: _completeOnboarding,
+        onSkip: _completeOnboarding,
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('SecureMoney'),
@@ -340,8 +440,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ],
               ),
             )
-          : _getSelectedScreen(),
-      bottomNavigationBar: (!_isLoading && _isInitialized) 
+          : _showSampleDataPrompt
+            ? SampleDataHelper.buildSampleDataPrompt(
+                onLoadSample: _loadSampleData,
+                onAddFirst: _skipSampleData,
+              )
+            : _getSelectedScreen(),
+      bottomNavigationBar: (!_isLoading && _isInitialized && !_showSampleDataPrompt) 
         ? BottomNavigationBar(
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
@@ -453,27 +558,87 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     try {
       setState(() {
         if (newTransaction.id == null) {
-          // New transaction
-          newTransaction.id = DateTime.now().toString(); // Use timestamp as ID
+          // New transaction - generate unique ID with milliseconds precision
+          newTransaction.id = '${DateTime.now().millisecondsSinceEpoch}_${_transactions.length}';
           _transactions.add(newTransaction);
+          debugPrint('✅ Added new transaction with ID: ${newTransaction.id}');
         } else {
           // Update existing transaction
           int index = _transactions.indexWhere((txn) => txn.id == newTransaction.id);
           if (index != -1) {
             _transactions[index] = newTransaction;
+            debugPrint('✅ Updated transaction with ID: ${newTransaction.id}');
+          } else {
+            debugPrint('⚠️ Transaction with ID ${newTransaction.id} not found for update');
           }
         }
       });
 
       // Save to secure storage
       await _secureStorage.saveTransactions(_transactions);
+      debugPrint('✅ Saved ${_transactions.length} transactions to secure storage');
       
       // Recalculate balance
       _calculateBalance();
       
+      // Check for achievements (gamification)
+      await _checkForAchievements();
+      
+      // Force UI refresh by calling setState
+      if (mounted) {
+        setState(() {
+          // This will trigger a rebuild of all child widgets
+        });
+      }
+      
     } catch (e) {
-      debugPrint('Error saving transaction: $e');
+      debugPrint('❌ Error saving transaction: $e');
       rethrow;
+    }
+  }
+
+  // Check for new achievements after transaction changes
+  Future<void> _checkForAchievements() async {
+    try {
+      // Calculate total categories used
+      final categories = _transactions
+          .map((t) => t.category == 'Other' ? t.customCategory ?? 'Other' : t.category)
+          .toSet()
+          .length;
+      
+      // Calculate total amount
+      final totalAmount = _transactions.fold(0.0, (sum, t) => sum + t.amount);
+      
+      // Check feature usage
+      final hasUsedExport = await GamificationService.hasUsedFeature('export');
+      final hasUsedImport = await GamificationService.hasUsedFeature('import');
+      final hasUsedReports = await GamificationService.hasUsedFeature('reports');
+      
+      // Check for new achievements
+      final newAchievements = await GamificationService.checkForNewAchievements(
+        totalTransactions: _transactions.length,
+        totalCategories: categories,
+        totalAmount: totalAmount,
+        hasUsedExport: hasUsedExport,
+        hasUsedImport: hasUsedImport,
+        hasUsedReports: hasUsedReports,
+      );
+      
+      // Show achievement notifications
+      for (final achievement in newAchievements) {
+        if (mounted) {
+          GamificationService.showAchievementNotification(context, achievement);
+        }
+      }
+      
+      // Update stats
+      await GamificationService.updateStats(
+        transactionCount: _transactions.length,
+        totalAmount: totalAmount,
+      );
+      
+    } catch (e) {
+      debugPrint('Error checking achievements: $e');
     }
   }
 
