@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:secure_money_management/helper/constants.dart';
 import 'package:secure_money_management/services/currency_service.dart';
+import 'package:secure_money_management/services/first_use_prompts_service.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
 import '../models/transaction_model.dart';
@@ -46,6 +47,26 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
     _searchController.addListener(() {
       filterCategories();
     });
+    
+    // Show first-time prompts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showFirstTimePrompts();
+    });
+  }
+
+  /// Show helpful prompts for first-time users
+  Future<void> _showFirstTimePrompts() async {
+    if (widget.transaction == null) { // Only for new transactions
+      await FirstUsePromptsService.showFirstUsePrompt(
+        context,
+        featureId: 'add_transaction_form',
+        title: 'Create Your Transaction! 💰',
+        message: 'Fill in the details below to track your income or expenses. '
+                'Choose categories and payment modes for better organization.',
+        icon: Icons.receipt_long,
+        color: Colors.green,
+      );
+    }
   }
 
   void filterCategories() {
@@ -94,6 +115,48 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
     Navigator.pop(context);
   }
 
+  /// Get appropriate icon for category
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+      case 'groceries':
+        return Icons.restaurant;
+      case 'transport':
+      case 'fuel':
+        return Icons.directions_car;
+      case 'entertainment':
+        return Icons.movie;
+      case 'shopping':
+        return Icons.shopping_bag;
+      case 'bills':
+      case 'utilities':
+        return Icons.receipt;
+      case 'rent':
+      case 'house rent':
+        return Icons.home;
+      case 'salary':
+      case 'income':
+        return Icons.account_balance_wallet;
+      case 'healthcare':
+      case 'medical':
+        return Icons.local_hospital;
+      case 'education':
+        return Icons.school;
+      case 'investment':
+        return Icons.trending_up;
+      case 'savings':
+        return Icons.savings;
+      case 'travel':
+        return Icons.flight;
+      case 'fitness':
+        return Icons.fitness_center;
+      case 'other':
+        return Icons.more_horiz;
+      default:
+        return Icons.category;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,6 +200,10 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                   value: _type,
                   decoration: InputDecoration(
                     labelText: 'Transaction Type',
+                    prefixIcon: Icon(
+                      _type == 'Income' ? Icons.trending_up : Icons.trending_down,
+                      color: _type == 'Income' ? Colors.green : Colors.red,
+                    ),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
@@ -145,19 +212,48 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                     ),
                   ),
                   items: Constants.transactionType.map((type) {
-                    return DropdownMenuItem(value: type, child: Text(type));
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Row(
+                        children: [
+                          Icon(
+                            type == 'Income' ? Icons.add_circle : Icons.remove_circle,
+                            color: type == 'Income' ? Colors.green : Colors.red,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(type),
+                        ],
+                      ),
+                    );
                   }).toList(),
                   onChanged: (value) => setState(() {
                     _type = value!;
                   }),
                 ),
-                const SizedBox(height: 14),
-                const Text('Please select other option for custom category',style: TextStyle(fontWeight: FontWeight.bold,),textAlign: TextAlign.center,),
-                const SizedBox(height: 2),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Colors.blue, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Select "Other" to create a custom category',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.blue.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _category,
                   decoration: InputDecoration(
                     labelText: 'Category',
+                    prefixIcon: const Icon(Icons.category, color: Colors.teal),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
@@ -166,8 +262,17 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                     ),
                   ),
                   items: Constants.transactionCategory.map((category) {
+                    IconData categoryIcon = _getCategoryIcon(category);
                     return DropdownMenuItem(
-                        value: category, child: Text(category));
+                      value: category,
+                      child: Row(
+                        children: [
+                          Icon(categoryIcon, size: 18, color: Colors.grey.shade600),
+                          const SizedBox(width: 8),
+                          Text(category),
+                        ],
+                      ),
+                    );
                   }).toList(),
                   validator: (value) {
                     if (value == null || value == Constants.transactionCategory[0]) {
