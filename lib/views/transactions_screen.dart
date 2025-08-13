@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:secure_money_management/helper/constants.dart';
 import 'package:secure_money_management/services/currency_service.dart';
 import 'package:secure_money_management/services/secure_transaction_service.dart';
+import 'package:secure_money_management/services/first_use_prompts_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ad_service/widgets/banner_ad.dart';
@@ -61,11 +62,52 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
       // Load transactions after initialization/migration
       await _loadTransactions();
+      
+      // Show first-use feature discovery
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showFeatureDiscovery();
+      });
     } catch (e) {
       debugPrint('Error initializing secure storage: $e');
       // Fallback to loading without migration
       await _loadTransactions();
     }
+  }
+
+  /// Show feature discovery for transactions screen
+  Future<void> _showFeatureDiscovery() async {
+    if (!mounted) return;
+    
+    await FirstUsePromptsService.showFeatureDiscovery(
+      context,
+      screenId: 'transactions_screen',
+      features: [
+        FeatureInfo(
+          title: 'Search Transactions',
+          description: 'Tap the search icon to find specific transactions',
+          icon: Icons.search,
+          color: Colors.blue,
+        ),
+        FeatureInfo(
+          title: 'Filter by Category',
+          description: 'Use filters to view transactions by type, category, or date',
+          icon: Icons.filter_list,
+          color: Colors.orange,
+        ),
+        FeatureInfo(
+          title: 'Edit & Delete',
+          description: 'Tap any transaction to edit or delete it',
+          icon: Icons.edit,
+          color: Colors.green,
+        ),
+        FeatureInfo(
+          title: 'Add New Transaction',
+          description: 'Tap the + button to add income or expenses',
+          icon: Icons.add,
+          color: Colors.purple,
+        ),
+      ],
+    );
   }
 
   @override
