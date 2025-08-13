@@ -117,41 +117,83 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
 
   /// Get appropriate icon for category
   IconData _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
+    // Remove emoji if present to get clean category name
+    String cleanCategory = Constants.getCategoryStorageName(category).toLowerCase();
+    
+    switch (cleanCategory) {
       case 'food':
       case 'groceries':
+      case 'dining out':
+      case 'food delivery':
         return Icons.restaurant;
       case 'transport':
       case 'fuel':
+      case 'car maintenance':
+      case 'public transit':
+      case 'taxi and rideshare':
         return Icons.directions_car;
       case 'entertainment':
+      case 'movies and events':
+      case 'gaming':
         return Icons.movie;
       case 'shopping':
+      case 'apparel':
+      case 'clothing and personal care':
+      case 'shoes':
         return Icons.shopping_bag;
       case 'bills':
       case 'utilities':
+      case 'insurance premiums':
         return Icons.receipt;
       case 'rent':
       case 'house rent':
+      case 'rent/mortgage':
+      case 'home insurance':
         return Icons.home;
       case 'salary':
       case 'income':
+      case 'freelance income':
+      case 'bonuses':
         return Icons.account_balance_wallet;
       case 'healthcare':
       case 'medical':
+      case 'medical bills':
+      case 'medications':
         return Icons.local_hospital;
       case 'education':
+      case 'tuition fees':
+      case 'online courses':
+      case 'training and courses':
         return Icons.school;
       case 'investment':
+      case 'stock investments':
+      case 'savings and investments':
         return Icons.trending_up;
       case 'savings':
+      case 'savings contributions':
+      case 'emergency fund':
         return Icons.savings;
       case 'travel':
+      case 'travel expenses':
         return Icons.flight;
       case 'fitness':
+      case 'fitness and health':
+      case 'gym memberships':
         return Icons.fitness_center;
       case 'other':
         return Icons.more_horiz;
+      case 'coffee shops':
+        return Icons.local_cafe;
+      case 'gifts':
+        return Icons.card_giftcard;
+      case 'subscriptions':
+      case 'streaming services':
+        return Icons.subscriptions;
+      case 'electronics':
+        return Icons.devices;
+      case 'pet care':
+      case 'veterinary bills':
+        return Icons.pets;
       default:
         return Icons.category;
     }
