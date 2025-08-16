@@ -334,13 +334,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         _isLoading = true;
       });
       
+      print('Main: Initializing secure transaction service...');
+      
       // Initialize the secure transaction service
       await _secureStorage.initialize();
+      
+      // Test storage integrity and repair if needed
+      final storageOk = await _secureStorage.testAndRepairStorage();
+      if (!storageOk) {
+        print('Main: Storage repair failed, continuing with empty state');
+      }
       
       // Attempt to migrate from plain text storage
       final migrated = await _secureStorage.migrateFromPlainTextStorage();
       if (migrated) {
-        debugPrint('Successfully migrated transactions to encrypted storage in main.dart');
+        print('Main: Successfully migrated transactions to encrypted storage');
       }
       
       // Load transactions after initialization/migration
@@ -352,8 +360,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         _isLoading = false;
       });
       
+      print('Main: Initialization complete - ${_transactions.length} transactions loaded');
+      
     } catch (e) {
-      debugPrint('Error initializing secure storage in main.dart: $e');
+      print('Main: Error initializing secure storage: $e');
       
       // Fallback to loading without migration
       try {
@@ -364,8 +374,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           _isInitialized = true;
           _isLoading = false;
         });
+        
+        print('Main: Fallback initialization successful');
       } catch (fallbackError) {
-        debugPrint('Fallback loading also failed: $fallbackError');
+        print('Main: Fallback loading also failed: $fallbackError');
         setState(() {
           _isInitialized = false;
           _isLoading = false;
@@ -505,15 +517,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // Load transactions from secure storage
   Future<void> _loadTransactions() async {
     try {
+      print('Main: Starting transaction load...');
       final loadedTransactions = await _secureStorage.loadTransactions();
+      print('Main: Loaded ${loadedTransactions.length} transactions');
+      
       if (mounted) {
         setState(() {
           _transactions = loadedTransactions;
         });
         _calculateBalance(); // Recalculate balance after loading transactions
+        print('Main: State updated with ${_transactions.length} transactions');
       }
     } catch (e) {
-      debugPrint('Error loading transactions in main.dart: $e');
+      print('Main: Error loading transactions: $e');
+      
       // Try legacy migration as fallback
       await _tryLegacyMigration();
     }
