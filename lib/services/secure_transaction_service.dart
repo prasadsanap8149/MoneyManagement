@@ -22,11 +22,15 @@ class SecureTransactionService {
     try {
       final prefs = await SharedPreferences.getInstance();
       
+      print('SecureTransactionService: Saving ${transactions.length} transactions...');
+      
       // Convert transactions to JSON
       final transactionMaps = transactions.map((t) => t.toJson()).toList();
+      print('SecureTransactionService: Converted to ${transactionMaps.length} JSON maps');
       
       // Encrypt each transaction
       final encryptedTransactions = _encryptionService.encryptTransactionList(transactionMaps);
+      print('SecureTransactionService: Encrypted to ${encryptedTransactions.length} entries');
       
       // Save encrypted transactions
       await prefs.setStringList(_transactionsKey, encryptedTransactions);
@@ -35,7 +39,10 @@ class SecureTransactionService {
       final dataHash = _encryptionService.hashData(json.encode(transactionMaps));
       await prefs.setString(_transactionHashKey, dataHash);
       
+      print('SecureTransactionService: Successfully saved transactions with hash verification');
+      
     } catch (e) {
+      print('SecureTransactionService: Error saving transactions: $e');
       throw Exception('Failed to save transactions securely: $e');
     }
   }
@@ -47,26 +54,39 @@ class SecureTransactionService {
       
       // Get encrypted transactions
       final encryptedTransactions = prefs.getStringList(_transactionsKey);
+      
+      // Debug logging for release builds
+      print('SecureTransactionService: Loading transactions...');
+      print('SecureTransactionService: Found ${encryptedTransactions?.length ?? 0} encrypted entries');
+      
       if (encryptedTransactions == null || encryptedTransactions.isEmpty) {
+        print('SecureTransactionService: No transactions found, returning empty list');
         return [];
       }
       
       // Decrypt transactions
       final decryptedMaps = _encryptionService.decryptTransactionList(encryptedTransactions);
+      print('SecureTransactionService: Decrypted ${decryptedMaps.length} transaction maps');
       
       // Verify data integrity
       final storedHash = prefs.getString(_transactionHashKey);
       if (storedHash != null) {
         final currentHash = _encryptionService.hashData(json.encode(decryptedMaps));
         if (currentHash != storedHash) {
+          print('SecureTransactionService: Data integrity check failed!');
           throw Exception('Data integrity check failed. Transactions may have been tampered with.');
         }
+        print('SecureTransactionService: Data integrity check passed');
       }
       
       // Convert to TransactionModel objects
-      return decryptedMaps.map((map) => TransactionModel.fromJson(map)).toList();
+      final transactions = decryptedMaps.map((map) => TransactionModel.fromJson(map)).toList();
+      print('SecureTransactionService: Successfully loaded ${transactions.length} transactions');
+      
+      return transactions;
       
     } catch (e) {
+      print('SecureTransactionService: Error loading transactions: $e');
       throw Exception('Failed to load transactions securely: $e');
     }
   }
@@ -288,6 +308,35 @@ class SecureTransactionService {
       
     } catch (e) {
       throw Exception('Failed to migrate transactions: $e');
+    }
+  }
+
+  /// Test and repair transaction storage
+  Future<bool> testAndRepairStorage() async {
+    try {
+      print('SecureTransactionService: Testing storage integrity...');
+      
+      // Try to load transactions
+      final transactions = await loadTransactions();
+      print('SecureTransactionService: Storage test successful - ${transactions.length} transactions loaded');
+      
+      return true;
+    } catch (e) {
+      print('SecureTransactionService: Storage test failed: $e');
+      
+      // Try to repair by clearing corrupted data
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_transactionsKey);
+        await prefs.remove(_transactionHashKey);
+        print('SecureTransactionService: Cleared corrupted storage data');
+        
+        // Try legacy migration as repair attempt
+        return await migrateFromPlainTextStorage();
+      } catch (repairError) {
+        print('SecureTransactionService: Repair attempt failed: $repairError');
+        return false;
+      }
     }
   }
 }
