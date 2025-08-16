@@ -66,11 +66,15 @@ android {
             shrinkResources false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            // Additional R8 configurations to handle missing classes
+            buildConfigField "boolean", "DEBUG_MODE", "false"
         }
         debug {
             debuggable true
             minifyEnabled false
             shrinkResources false
+            buildConfigField "boolean", "DEBUG_MODE", "true"
         }
     }
 }
@@ -93,6 +97,13 @@ dependencies {
 
     // AndroidX Core for edge-to-edge
     implementation 'androidx.core:core-ktx:1.12.0'
+    
+    // Add missing Google Play Core dependencies to fix R8 issues
+    implementation 'com.google.android.play:core:1.10.3'
+    implementation 'com.google.android.play:core-ktx:1.8.1'
+    
+    // Add reflection support for newer Android versions
+    implementation 'androidx.annotation:annotation:1.7.1'
 }
 
 // ✅ Configure Kotlin JVM Toolchain for Java 17 compatibility
