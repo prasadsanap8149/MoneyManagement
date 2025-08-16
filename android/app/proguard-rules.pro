@@ -87,17 +87,15 @@
 -dontwarn com.google.android.gms.**
 
 # R8 specific rules to fix missing classes
-# Fix for Google Play Core Library classes
--keep class com.google.android.play.core.** { *; }
+# Don't warn about Google Play Core classes (we don't use them directly)
 -dontwarn com.google.android.play.core.**
 
 # Fix for OkHttp classes
--keep class com.squareup.okhttp.** { *; }
 -dontwarn com.squareup.okhttp.**
 -dontwarn okio.**
 
 # Fix for Java reflection classes
--keep class java.lang.reflect.** { *; }
+-dontwarn java.lang.reflect.**
 -dontwarn java.lang.reflect.AnnotatedType
 
 # Fix for gRPC classes
