@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:secure_money_management/views/dashboard.dart';
-import 'package:secure_money_management/views/recent_transactions.dart';
 import 'package:secure_money_management/views/transactions_screen.dart';
 import 'package:secure_money_management/views/report_screen.dart';
 import 'package:secure_money_management/screens/splash_screen.dart';
@@ -100,11 +99,9 @@ class MoneyManagementApp extends StatelessWidget {
                 primary: Colors.green,
                 secondary: Colors.greenAccent,
                 surface: Color(0xFF1E1E1E),
-                background: Color(0xFF121212),
                 onPrimary: Colors.white,
                 onSecondary: Colors.black,
                 onSurface: Colors.white,
-                onBackground: Colors.white,
               ),
               textTheme: const TextTheme(
                 bodyLarge: TextStyle(color: Colors.white),
@@ -409,8 +406,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       appBar: AppBar(
         title: const Text('SecureMoney'),
         centerTitle: true,
-        actions: [
-          const ThemeToggleButton(),
+        actions: const [
+          ThemeToggleButton(),
         ],
       ),
       body: _isLoading 

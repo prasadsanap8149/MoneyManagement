@@ -9,11 +9,9 @@ import 'package:intl/intl.dart';
 import 'package:secure_money_management/utils/util_services.dart';
 import 'package:secure_money_management/models/transaction_model.dart';
 import 'package:secure_money_management/services/file_operations_service.dart';
-import 'package:secure_money_management/services/currency_service.dart';
 import 'package:secure_money_management/utils/user_experience_helper.dart';
 import 'package:secure_money_management/ad_service/widgets/interstitial_ad.dart';
 import 'package:secure_money_management/services/secure_transaction_service.dart';
-import 'package:secure_money_management/helper/constants.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,7 +37,7 @@ class _RecentTransactionsState extends State<RecentTransactions> {
   String _selectedCategoryFilter = 'All';
   String _selectedPaymentModeFilter = 'All';
   DateTimeRange? _selectedDateRange;
-  bool _isSearching = false;
+  final bool _isSearching = false;
 
   @override
   void initState() {

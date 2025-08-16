@@ -1249,7 +1249,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.lightbulb, color: Colors.purple, size: 20),
+                    const Icon(Icons.lightbulb, color: Colors.purple, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       'Quick Tips',

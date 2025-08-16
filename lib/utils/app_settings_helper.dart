@@ -39,14 +39,14 @@ class AppSettingsHelper {
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.info, color: Colors.blue, size: 20),
-                        const SizedBox(width: 8),
-                        const Expanded(
+                        Icon(Icons.info, color: Colors.blue, size: 20),
+                        SizedBox(width: 8),
+                        Expanded(
                           child: Text(
                             'How to enable permissions:',
                             style: TextStyle(
@@ -57,8 +57,8 @@ class AppSettingsHelper {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       '1. Tap "Open Settings" below\n'
                       '2. Go to "Permissions" section\n'
                       '3. Enable "Storage" or "Files and media"\n'
@@ -114,11 +114,11 @@ class AppSettingsHelper {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Row(
+          title: const Row(
             children: [
-              const Icon(Icons.block, color: Colors.red),
-              const SizedBox(width: 8),
-              const Expanded(child: Text('Permission Required')),
+              Icon(Icons.block, color: Colors.red),
+              SizedBox(width: 8),
+              Expanded(child: Text('Permission Required')),
             ],
           ),
           content: Column(
@@ -136,11 +136,11 @@ class AppSettingsHelper {
                   color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.warning, color: Colors.red, size: 20),
-                    const SizedBox(width: 8),
-                    const Expanded(
+                    Icon(Icons.warning, color: Colors.red, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
                       child: Text(
                         'Permission was denied. You can enable it manually in app settings.',
                         style: TextStyle(fontSize: 12),
@@ -241,11 +241,11 @@ class AppSettingsHelper {
                     color: Colors.orange.shade50,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const Icon(Icons.lightbulb, color: Colors.orange, size: 20),
-                      const SizedBox(width: 8),
-                      const Expanded(
+                      Icon(Icons.lightbulb, color: Colors.orange, size: 20),
+                      SizedBox(width: 8),
+                      Expanded(
                         child: Text(
                           'If you choose "Don\'t ask again", you can still enable permission later in app settings.',
                           style: TextStyle(fontSize: 12),

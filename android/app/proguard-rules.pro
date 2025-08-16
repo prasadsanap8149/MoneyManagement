@@ -141,3 +141,12 @@
 
 # Disable obfuscation for critical data handling
 -dontobfuscate
+
+# Google Mobile Ads SDK
+-keep class com.google.android.gms.ads.** { *; }
+-keep class com.google.ads.** { *; }
+
+# Sometimes needed for mediation adapters
+-keep class com.google.android.gms.common.** { *; }
+-keep interface com.google.android.gms.ads.** { *; }
+-dontwarn com.google.android.gms.ads.**

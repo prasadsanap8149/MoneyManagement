@@ -272,11 +272,11 @@ class UserExperienceHelper {
                   color: Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Icon(Icons.lightbulb, color: Colors.orange, size: 20),
-                    const SizedBox(width: 8),
-                    const Expanded(
+                    Icon(Icons.lightbulb, color: Colors.orange, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
                       child: Text(
                         'You can enable this feature by granting the required permissions in app settings.',
                         style: TextStyle(fontSize: 12),

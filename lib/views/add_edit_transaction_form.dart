@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:secure_money_management/helper/constants.dart';
-import 'package:secure_money_management/services/currency_service.dart';
 import 'package:secure_money_management/services/first_use_prompts_service.dart';
 
 import '../ad_service/widgets/banner_ad.dart';

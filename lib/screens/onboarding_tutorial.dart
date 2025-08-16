@@ -17,7 +17,7 @@ class OnboardingTutorial extends StatefulWidget {
 }
 
 class _OnboardingTutorialState extends State<OnboardingTutorial> {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentPage = 0;
 
   final List<OnboardingStep> _steps = [
