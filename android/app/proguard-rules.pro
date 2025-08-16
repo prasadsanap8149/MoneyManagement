@@ -11,11 +11,11 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-renamesourcefileattribute SourceFile
 
 # Keep Flutter and Dart classes
 -keep class io.flutter.** { *; }
@@ -73,12 +73,6 @@
     native <methods>;
 }
 
-# Aggressive keep rules for data persistence classes
--keep class * extends java.lang.Object {
-    public <fields>;
-    public <methods>;
-}
-
 # Flutter specific ProGuard rules
 -keep class io.flutter.app.** { *; }
 -keep class io.flutter.plugin.**  { *; }
@@ -91,6 +85,61 @@
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.firebase.**
 -dontwarn com.google.android.gms.**
+
+# R8 specific rules to fix missing classes
+# Fix for Google Play Core Library classes
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.play.core.**
+
+# Fix for OkHttp classes
+-keep class com.squareup.okhttp.** { *; }
+-dontwarn com.squareup.okhttp.**
+-dontwarn okio.**
+
+# Fix for Java reflection classes
+-keep class java.lang.reflect.** { *; }
+-dontwarn java.lang.reflect.AnnotatedType
+
+# Fix for gRPC classes
+-keep class io.grpc.** { *; }
+-dontwarn io.grpc.**
+
+# Fix for Google Common classes
+-keep class com.google.common.** { *; }
+-dontwarn com.google.common.**
+
+# Generic Android and Google Play services rules
+-keep class * extends java.util.ListResourceBundle {
+    protected java.lang.Object[][] getContents();
+}
+
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+-keepnames @com.google.android.gms.common.annotation.KeepName class *
+-keepclassmembernames class * {
+    @com.google.android.gms.common.annotation.KeepName *;
+}
+
+-keepnames class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}
+
+# Aggressive keep rules for critical classes
+-keep class * extends java.lang.Object {
+    public <fields>;
+    public <methods>;
+}
+
+# Don't warn about missing classes that are platform-specific
+-dontwarn javax.annotation.**
+-dontwarn org.checkerframework.**
+-dontwarn com.google.errorprone.annotations.**
+-dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+
+# Keep annotation classes
+-keep class * extends java.lang.annotation.Annotation { *; }
 
 # Disable obfuscation for critical data handling
 -dontobfuscate
